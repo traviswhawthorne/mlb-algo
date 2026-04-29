@@ -132,16 +132,32 @@ def _build_picks_email(picks_date, pass_num, total_games):
 
     all_bets      = [b for g in picks.get("games", []) for b in g.get("bets", [])]
     priority_bets = [b for b in all_bets if b.get("priority")]
+    fade_bets     = [b for b in all_bets if b.get("fade")]
 
-    lines = [f"{total_games} game(s) today | {len(all_bets)} pick(s) | {len(priority_bets)} priority ★", ""]
+    lines = [
+        f"{total_games} game(s) today | {len(all_bets)} pick(s) | "
+        f"{len(priority_bets)} priority ★ | {len(fade_bets)} fade watch ⚠",
+        ""
+    ]
 
-    display_bets = priority_bets if priority_bets else all_bets
-    label_hdr    = "PRIORITY PICKS (★):" if priority_bets else "All picks:"
-    if display_bets:
-        lines.append(label_hdr)
-        for b in display_bets:
-            label = f"{b['team']}  {b.get('bet_type_label', '')}".rstrip()
-            lines.append(f"  • {label:<32}  {b['book_odds']:+d}  EV {b['ev_pct']}  ${b['bet_amount']:.2f}")
+    def _bet_line(b):
+        label = f"{b['team']}  {b.get('bet_type_label', '')}".rstrip()
+        tag   = ""
+        if b.get("priority"): tag += " ★"
+        if b.get("fade"):     tag += " ⚠"
+        return f"  • {label:<32}  {b['book_odds']:+d}  EV {b['ev_pct']}  ${b['bet_amount']:.2f}{tag}"
+
+    if priority_bets:
+        lines.append("PRIORITY (★):")
+        for b in priority_bets:
+            lines.append(_bet_line(b))
+        lines.append("")
+
+    other_bets = [b for b in all_bets if not b.get("priority")]
+    if other_bets:
+        lines.append("Other picks:")
+        for b in other_bets:
+            lines.append(_bet_line(b))
 
     return "\n".join(lines)
 
