@@ -36,3 +36,4 @@ jobs:
           GMAIL_APP_PASSWORD:          ${{ secrets.GMAIL_APP_PASSWORD }}
           OUTPUT_FILE:                 MLB_Picks.xlsx
         run: python coordinator.py
+
