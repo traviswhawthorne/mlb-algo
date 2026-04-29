@@ -1,0 +1,38 @@
+name: MLB Coordinator
+
+on:
+  schedule:
+    # Every 20 min from noon–7 PM ET (16–23 UTC) and 8 PM–1 AM ET (0–5 UTC)
+    - cron: '0,20,40 16-23 * * *'
+    - cron: '0,20,40 0-5 * * *'
+  workflow_dispatch:    # allow manual trigger for testing
+
+permissions:
+  contents: write       # needed so coordinator can commit state back to the repo
+
+jobs:
+  coordinate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so git push works
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run coordinator
+        env:
+          ODDS_API_KEY:                ${{ secrets.ODDS_API_KEY }}
+          GDRIVE_SERVICE_ACCOUNT_JSON: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          GDRIVE_FOLDER_ID:            ${{ secrets.GDRIVE_FOLDER_ID }}
+          RESUME_REPO_TOKEN:           ${{ secrets.RESUME_REPO_TOKEN }}
+          GMAIL_USER:                  ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD:          ${{ secrets.GMAIL_APP_PASSWORD }}
+          OUTPUT_FILE:                 MLB_Picks.xlsx
+        run: python coordinator.py

@@ -1,0 +1,31 @@
+Team,TeamName,OBP,SLG,OPS,K_pct,PA,wRC+
+,Toronto Blue Jays,0.333,0.427,0.76,0.1778,6180,106
+,Philadelphia Phillies,0.328,0.431,0.759,0.2168,6166,106
+,Milwaukee Brewers,0.332,0.403,0.735,0.2033,6227,102
+,Boston Red Sox,0.324,0.421,0.745,0.2286,6206,104
+,Athletics,0.318,0.431,0.749,0.2286,6151,104
+,Los Angeles Dodgers,0.327,0.441,0.768,0.2187,6187,107
+,San Diego Padres,0.321,0.39,0.711,0.1907,6087,99
+,Arizona Diamondbacks,0.325,0.433,0.758,0.2119,6210,105
+,Tampa Bay Rays,0.313,0.401,0.714,0.2311,6045,99
+,New York Yankees,0.332,0.455,0.787,0.2346,6235,110
+,Miami Marlins,0.314,0.393,0.707,0.203,6142,98
+,Houston Astros,0.315,0.399,0.714,0.2137,6087,99
+,Chicago Cubs,0.32,0.43,0.75,0.2072,6162,104
+,New York Mets,0.326,0.427,0.753,0.2145,6178,105
+,Kansas City Royals,0.309,0.397,0.706,0.1824,6008,98
+,Detroit Tigers,0.316,0.413,0.729,0.2386,6093,101
+,St. Louis Cardinals,0.314,0.379,0.693,0.2177,6069,96
+,Atlanta Braves,0.32,0.399,0.719,0.2216,6186,100
+,Cincinnati Reds,0.315,0.391,0.706,0.2327,6082,98
+,Seattle Mariners,0.32,0.42,0.74,0.2332,6200,103
+,Washington Nationals,0.304,0.389,0.693,0.2258,5982,96
+,Minnesota Twins,0.31,0.397,0.707,0.2264,6059,98
+,Colorado Rockies,0.293,0.386,0.679,0.2591,5908,95
+,Baltimore Orioles,0.305,0.394,0.699,0.242,6020,97
+,San Francisco Giants,0.311,0.386,0.697,0.2273,6072,97
+,Texas Rangers,0.302,0.381,0.683,0.2195,6046,95
+,Chicago White Sox,0.302,0.373,0.675,0.2278,5987,94
+,Pittsburgh Pirates,0.305,0.35,0.655,0.2367,6008,91
+,Cleveland Guardians,0.296,0.373,0.669,0.2261,5943,93
+,Los Angeles Angels,0.298,0.397,0.695,0.2712,6000,97

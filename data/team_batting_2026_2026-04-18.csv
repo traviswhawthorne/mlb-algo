@@ -1,0 +1,31 @@
+Team,TeamName,OBP,SLG,OPS,K_pct,PA,wRC+
+,Los Angeles Dodgers,0.364,0.499,0.863,0.2259,735,123
+,Atlanta Braves,0.344,0.459,0.803,0.1917,767,114
+,Houston Astros,0.353,0.434,0.787,0.2022,826,112
+,Washington Nationals,0.337,0.412,0.749,0.2035,791,106
+,Tampa Bay Rays,0.335,0.384,0.719,0.1821,747,102
+,Miami Marlins,0.331,0.402,0.733,0.2122,754,104
+,Pittsburgh Pirates,0.346,0.399,0.745,0.226,792,106
+,Chicago Cubs,0.346,0.402,0.748,0.2193,757,106
+,San Francisco Giants,0.293,0.366,0.659,0.2083,720,94
+,Toronto Blue Jays,0.308,0.372,0.68,0.1841,717,97
+,Arizona Diamondbacks,0.293,0.398,0.691,0.2283,727,98
+,Texas Rangers,0.315,0.399,0.714,0.2507,758,101
+,Detroit Tigers,0.322,0.371,0.693,0.2224,742,98
+,Baltimore Orioles,0.328,0.381,0.709,0.2404,757,101
+,Milwaukee Brewers,0.34,0.376,0.716,0.22,741,102
+,Boston Red Sox,0.317,0.347,0.664,0.235,719,94
+,San Diego Padres,0.309,0.38,0.689,0.2016,744,98
+,St. Louis Cardinals,0.329,0.377,0.706,0.2035,737,100
+,Colorado Rockies,0.303,0.371,0.674,0.2738,745,96
+,Los Angeles Angels,0.338,0.414,0.752,0.2448,825,107
+,Athletics,0.307,0.356,0.663,0.2574,746,94
+,Cleveland Guardians,0.317,0.38,0.697,0.2059,777,99
+,New York Mets,0.293,0.339,0.632,0.2149,754,90
+,Minnesota Twins,0.332,0.388,0.72,0.2319,759,102
+,Philadelphia Phillies,0.308,0.374,0.682,0.2256,718,97
+,Kansas City Royals,0.301,0.341,0.642,0.2303,725,91
+,New York Yankees,0.313,0.383,0.696,0.252,746,99
+,Seattle Mariners,0.317,0.329,0.646,0.2509,793,92
+,Chicago White Sox,0.295,0.33,0.625,0.2585,735,89
+,Cincinnati Reds,0.293,0.327,0.62,0.2493,738,88

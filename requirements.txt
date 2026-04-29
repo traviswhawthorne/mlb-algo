@@ -1,0 +1,10 @@
+requests
+pandas
+numpy
+scipy
+pytz
+xlsxwriter
+openpyxl
+google-api-python-client
+google-auth
+google-auth-httplib2
