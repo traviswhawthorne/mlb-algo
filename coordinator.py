@@ -126,6 +126,25 @@ def _send_email(subject, body):
         print(f"  [coord] Email error: {e}")
 
 
+def _short_team(name):
+    """'Los Angeles Angels' → 'Angels', 'Chicago White Sox' → 'White Sox'"""
+    parts = name.split()
+    if not parts:
+        return name
+    last = parts[-1]
+    if last in ("Sox", "Jays") and len(parts) >= 2:
+        return f"{parts[-2]} {last}"
+    return last
+
+
+def _parse_gametime(time_et):
+    """'10:10 AM PT' → datetime for sorting."""
+    try:
+        return datetime.strptime(time_et.replace(" PT", "").strip(), "%I:%M %p")
+    except Exception:
+        return datetime.min
+
+
 def _build_picks_email(picks_date, pass_num, total_games):
     picks_file = os.path.join(DATA_DIR, f"picks_{picks_date}.json")
     if not os.path.exists(picks_file):
@@ -134,38 +153,62 @@ def _build_picks_email(picks_date, pass_num, total_games):
     with open(picks_file) as f:
         picks = json.load(f)
 
-    games     = picks.get("games", [])
-    all_bets  = [(g, b) for g in games for b in g.get("bets", [])]
+    games    = picks.get("games", [])
+    all_bets = [(g, b) for g in games for b in g.get("bets", [])]
+
+    if not all_bets:
+        return f"{total_games} game(s) today | no picks this pass"
+
     n_priority = sum(1 for _, b in all_bets if b.get("priority"))
     n_fade     = sum(1 for _, b in all_bets if b.get("fade"))
 
-    lines = [
-        f"{total_games} game(s) today | {len(all_bets)} pick(s) | "
-        f"{n_priority} priority ★ | {n_fade} fade watch ⚠",
-        ""
-    ]
+    summary = (f"{total_games} game(s) today | {len(all_bets)} pick(s) | "
+               f"{n_priority} priority ★ | {n_fade} fade ⚠")
 
-    def _bet_line(g, b):
-        matchup = g.get("matchup", f"{g['away_team']} @ {g['home_team']}")
-        label   = f"{b['team']}  {b.get('bet_type_label', '')}".rstrip()
-        tag     = ""
-        if b.get("priority"): tag += " ★"
-        if b.get("fade"):     tag += " ⚠"
-        return f"  {matchup}\n    {label:<30}  {b['book_odds']:+d}  EV {b['ev_pct']}  ${b['bet_amount']:.2f}{tag}"
+    # Sort by game time ascending
+    all_bets.sort(key=lambda x: _parse_gametime(x[0].get("game_time_et", "")))
 
-    priority_pairs = [(g, b) for g, b in all_bets if b.get("priority")]
-    other_pairs    = [(g, b) for g, b in all_bets if not b.get("priority")]
+    def _odds(o):
+        try: return f"{int(o):+d}"
+        except Exception: return str(o)
 
-    if priority_pairs:
-        lines.append("PRIORITY (★):")
-        for g, b in priority_pairs:
-            lines.append(_bet_line(g, b))
-        lines.append("")
+    def _conf(c):
+        return {"High": "High", "Medium": "Med", "Low": "Low"}.get(c, (c or "?")[:3])
 
-    if other_pairs:
-        lines.append("Other picks:")
-        for g, b in other_pairs:
-            lines.append(_bet_line(g, b))
+    def _flag(b):
+        return ("★" if b.get("priority") else "") + ("⚠" if b.get("fade") else "")
+
+    # Build raw rows
+    table_rows = []
+    for g, b in all_bets:
+        time_str = g.get("game_time_et", "").replace(" PT", "")
+        matchup  = f"{_short_team(g.get('away_team', ''))} @ {_short_team(g.get('home_team', ''))}"
+        if b.get("market") == "Total" or not b.get("bet_type_label"):
+            pick = b.get("team", "")
+        else:
+            pick = f"{_short_team(b.get('team', ''))} {b.get('bet_type_label', '')}".strip()
+        table_rows.append((
+            time_str, matchup, pick,
+            _odds(b.get("model_odds", "")),
+            _odds(b.get("book_odds", "")),
+            b.get("ev_pct", ""),
+            _conf(g.get("confidence", "")),
+            _flag(b),
+        ))
+
+    headers = ("Time", "Matchup", "Pick", "Model", "Book", "Edge", "Status", "")
+    cols    = list(zip(*table_rows))
+    widths  = [max(len(h), max(len(c) for c in col))
+               for h, col in zip(headers, cols)]
+
+    def _fmt(vals):
+        return "  ".join(f"{v:<{w}}" for v, w in zip(vals, widths)).rstrip()
+
+    sep = "  ".join("-" * w for w in widths)
+
+    lines = [summary, "", _fmt(headers), sep]
+    for r in table_rows:
+        lines.append(_fmt(r))
 
     return "\n".join(lines)
 
