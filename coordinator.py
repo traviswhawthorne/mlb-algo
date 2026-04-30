@@ -503,11 +503,14 @@ def main():
         return
 
     last_start = max(_game_start_utc(g) for g in games)
-    elapsed_min = int((now - last_start).total_seconds() / 60)
     if now < last_start + timedelta(hours=2):
         wait_min = int((last_start + timedelta(hours=2) - now).total_seconds() / 60)
-        print(f"[coord] Last game started {elapsed_min}m ago — "
-              f"need 2h buffer. Check again in ~{wait_min}m.")
+        if now < last_start:
+            starts_in = int((last_start - now).total_seconds() / 60)
+            print(f"[coord] Last game starts in {starts_in}m — need 2h buffer after that. Check again in ~{wait_min}m.")
+        else:
+            elapsed_min = int((now - last_start).total_seconds() / 60)
+            print(f"[coord] Last game started {elapsed_min}m ago — need 2h buffer. Check again in ~{wait_min}m.")
         return
 
     if not _all_games_final():
