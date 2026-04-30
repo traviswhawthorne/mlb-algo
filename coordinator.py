@@ -106,7 +106,7 @@ def _run(script, *args):
 
 # ── Gmail ─────────────────────────────────────────────────────────────────────
 
-def _send_email(subject, body):
+def _send_email(subject, body, html=None):
     user     = os.environ.get("GMAIL_USER")
     password = os.environ.get("GMAIL_APP_PASSWORD")
     if not user or not password:
@@ -118,6 +118,8 @@ def _send_email(subject, body):
         msg["From"]    = user
         msg["To"]      = user
         msg.set_content(body)
+        if html:
+            msg.add_alternative(html, subtype="html")
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
             smtp.login(user, password)
             smtp.send_message(msg)
@@ -148,7 +150,8 @@ def _parse_gametime(time_et):
 def _build_picks_email(picks_date, pass_num, total_games):
     picks_file = os.path.join(DATA_DIR, f"picks_{picks_date}.json")
     if not os.path.exists(picks_file):
-        return f"{total_games} game(s) today | picks pass {pass_num} complete"
+        msg = f"{total_games} game(s) today | picks pass {pass_num} complete"
+        return msg, f"<p>{msg}</p>"
 
     with open(picks_file) as f:
         picks = json.load(f)
@@ -157,7 +160,8 @@ def _build_picks_email(picks_date, pass_num, total_games):
     all_bets = [(g, b) for g in games for b in g.get("bets", [])]
 
     if not all_bets:
-        return f"{total_games} game(s) today | no picks this pass"
+        msg = f"{total_games} game(s) today | no picks this pass"
+        return msg, f"<p>{msg}</p>"
 
     n_priority = sum(1 for _, b in all_bets if b.get("priority"))
     n_fade     = sum(1 for _, b in all_bets if b.get("fade"))
@@ -165,7 +169,6 @@ def _build_picks_email(picks_date, pass_num, total_games):
     summary = (f"{total_games} game(s) today | {len(all_bets)} pick(s) | "
                f"{n_priority} priority ★ | {n_fade} fade ⚠")
 
-    # Sort by game time ascending
     all_bets.sort(key=lambda x: _parse_gametime(x[0].get("game_time_et", "")))
 
     def _odds(o):
@@ -178,7 +181,7 @@ def _build_picks_email(picks_date, pass_num, total_games):
     def _flag(b):
         return ("★" if b.get("priority") else "") + ("⚠" if b.get("fade") else "")
 
-    # Build raw rows
+    # Build rows: (time, matchup, pick, model, book, edge, status, flag, is_priority, is_fade)
     table_rows = []
     for g, b in all_bets:
         time_str = g.get("game_time_et", "").replace(" PT", "")
@@ -194,29 +197,95 @@ def _build_picks_email(picks_date, pass_num, total_games):
             b.get("ev_pct", ""),
             _conf(g.get("confidence", "")),
             _flag(b),
+            bool(b.get("priority")),
+            bool(b.get("fade")),
         ))
 
+    # ── Plain text ────────────────────────────────────────────────────────────
+    display = [r[:8] for r in table_rows]
     headers = ("Time", "Matchup", "Pick", "Model", "Book", "Edge", "Status", "")
-    cols    = list(zip(*table_rows))
-    widths  = [max(len(h), max(len(c) for c in col))
-               for h, col in zip(headers, cols)]
+    cols    = list(zip(*display))
+    widths  = [max(len(h), max(len(c) for c in col)) for h, col in zip(headers, cols)]
 
     def _fmt(vals):
         return "  ".join(f"{v:<{w}}" for v, w in zip(vals, widths)).rstrip()
 
-    sep = "  ".join("-" * w for w in widths)
+    sep   = "  ".join("-" * w for w in widths)
+    lines = [summary, "", _fmt(headers), sep] + [_fmt(r) for r in display]
+    plain = "\n".join(lines)
 
-    lines = [summary, "", _fmt(headers), sep]
-    for r in table_rows:
-        lines.append(_fmt(r))
+    # ── HTML ──────────────────────────────────────────────────────────────────
+    H  = "padding:8px 12px;font-size:13px;font-weight:bold;color:#fff;background:#1e3a5f;border:1px solid #1e3a5f;"
+    HR = H + "text-align:right;"
+    HC = H + "text-align:center;"
+    HL = H + "text-align:left;"
 
-    return "\n".join(lines)
+    def _td(val, align="left", bg="#fff", extra=""):
+        s = (f"padding:7px 12px;font-size:13px;border:1px solid #dde1e7;"
+             f"text-align:{align};background:{bg};{extra}")
+        return f'<td style="{s}">{val}</td>'
+
+    def _conf_color(c):
+        return {"High": "#22863a", "Med": "#b36200", "Low": "#888"}.get(c, "#333")
+
+    def _ev_color(ev):
+        try:
+            v = float(ev.replace("%", "").replace("+", ""))
+            return "#22863a" if v >= 15 else "#2ea44f" if v >= 8 else "#333"
+        except Exception:
+            return "#333"
+
+    rows_html = []
+    for i, r in enumerate(table_rows):
+        time_s, matchup, pick, model, book, edge, status, flag, is_pri, is_fade = r
+        if is_pri:
+            bg, lb = "#fffbea", "border-left:4px solid #f0b429;"
+        elif is_fade:
+            bg, lb = "#fff5f0", "border-left:4px solid #e36209;"
+        else:
+            bg, lb = ("#f5f7fa" if i % 2 else "#ffffff"), ""
+
+        ec = _ev_color(edge)
+        sc = _conf_color(status)
+
+        cells = "".join([
+            _td(time_s,                                            bg=bg, extra=lb),
+            _td(matchup,                                           bg=bg),
+            _td(f"<strong>{pick}</strong>",                       bg=bg),
+            _td(model,                         align="right",     bg=bg),
+            _td(book,                          align="right",     bg=bg),
+            _td(f'<b style="color:{ec}">{edge}</b>', align="right", bg=bg),
+            _td(f'<span style="color:{sc}">{status}</span>', align="center", bg=bg),
+            _td(flag,                          align="center",    bg=bg),
+        ])
+        rows_html.append(f"<tr>{cells}</tr>")
+
+    html = f"""<div style="font-family:Arial,sans-serif;max-width:740px;margin:0 auto">
+<p style="font-size:14px;color:#333;margin-bottom:10px">{summary}</p>
+<table style="border-collapse:collapse;width:100%">
+<thead><tr>
+  <th style="{HL}">Time</th>
+  <th style="{HL}">Matchup</th>
+  <th style="{HL}">Pick</th>
+  <th style="{HR}">Model</th>
+  <th style="{HR}">Book</th>
+  <th style="{HR}">Edge</th>
+  <th style="{HC}">Status</th>
+  <th style="{HC}"></th>
+</tr></thead>
+<tbody>{"".join(rows_html)}</tbody>
+</table>
+<p style="font-size:11px;color:#888;margin-top:8px">★ Priority &nbsp;|&nbsp; ⚠ Fade watch</p>
+</div>"""
+
+    return plain, html
 
 
 def _build_results_email(picks_date):
     picks_file = os.path.join(DATA_DIR, f"picks_{picks_date}.json")
     if not os.path.exists(picks_file):
-        return "Results and tracker processing complete. Check Google Drive for details."
+        msg = "Results and tracker processing complete. Check Google Drive for details."
+        return msg, f"<p>{msg}</p>"
 
     try:
         sys.path.insert(0, HERE)
@@ -230,13 +299,14 @@ def _build_results_email(picks_date):
 
         wins = losses = 0
         total_pl = 0.0
-        bet_lines = []
+        bet_rows = []   # (matchup, label, odds, result, pl)
 
         for game in picks.get("games", []):
             pk    = game.get("game_pk")
             score = scores.get(pk)
             if not score:
                 continue
+            matchup = f"{_short_team(game['away_team'])} @ {_short_team(game['home_team'])}"
             for bet in game.get("bets", []):
                 margin, result = get_margin_and_result(
                     bet, game["away_team"], score["away_score"], score["home_score"])
@@ -246,14 +316,61 @@ def _build_results_email(picks_date):
                     wins   += result == "WIN"
                     losses += result == "LOSS"
                     label   = f"{bet['team']} {bet.get('bet_type_label', '')}".rstrip()
-                    bet_lines.append(f"  • {label:<32}  {bet['book_odds']:+d}  {result}  ${pl:+.2f}")
+                    bet_rows.append((matchup, label, bet["book_odds"], result, pl))
 
-        lines = [f"{wins + losses} bet(s) | {wins}W {losses}L | ${total_pl:+.2f}", ""]
-        lines.extend(bet_lines)
-        return "\n".join(lines)
+        summary = f"{wins + losses} bet(s) | {wins}W {losses}L | ${total_pl:+.2f}"
+
+        # ── Plain text ────────────────────────────────────────────────────────
+        lines = [summary, ""]
+        for matchup, label, odds, result, pl in bet_rows:
+            lines.append(f"  • {label:<32}  {odds:+d}  {result}  ${pl:+.2f}")
+        plain = "\n".join(lines)
+
+        # ── HTML ──────────────────────────────────────────────────────────────
+        pl_color = "#22863a" if total_pl >= 0 else "#cb2431"
+        summary_html = (f"{wins + losses} bet(s) &nbsp;|&nbsp; {wins}W {losses}L &nbsp;|&nbsp; "
+                        f'<b style="color:{pl_color}">${total_pl:+.2f}</b>')
+
+        H  = "padding:8px 12px;font-size:13px;font-weight:bold;color:#fff;background:#1e3a5f;border:1px solid #1e3a5f;text-align:left;"
+        HR = H + "text-align:right;" if False else H.replace("text-align:left", "text-align:right")
+
+        def _td(val, align="left", bg="#fff"):
+            s = f"padding:7px 12px;font-size:13px;border:1px solid #dde1e7;text-align:{align};background:{bg};"
+            return f'<td style="{s}">{val}</td>'
+
+        rows_html = []
+        for i, (matchup, label, odds, result, pl) in enumerate(bet_rows):
+            bg = "#f0fff4" if result == "WIN" else "#fff5f5"
+            rc = "#22863a" if result == "WIN" else "#cb2431"
+            pc = "#22863a" if pl >= 0 else "#cb2431"
+            cells = "".join([
+                _td(matchup, bg=bg),
+                _td(f"<strong>{label}</strong>", bg=bg),
+                _td(f"{odds:+d}", align="right", bg=bg),
+                _td(f'<b style="color:{rc}">{result}</b>', align="center", bg=bg),
+                _td(f'<b style="color:{pc}">${pl:+.2f}</b>', align="right", bg=bg),
+            ])
+            rows_html.append(f"<tr>{cells}</tr>")
+
+        html = f"""<div style="font-family:Arial,sans-serif;max-width:700px;margin:0 auto">
+<p style="font-size:15px;color:#333;margin-bottom:10px">{summary_html}</p>
+<table style="border-collapse:collapse;width:100%">
+<thead><tr>
+  <th style="{H}">Matchup</th>
+  <th style="{H}">Pick</th>
+  <th style="{HR}">Odds</th>
+  <th style="{H.replace('text-align:left','text-align:center')}">Result</th>
+  <th style="{HR}">P&amp;L</th>
+</tr></thead>
+<tbody>{"".join(rows_html)}</tbody>
+</table>
+</div>"""
+
+        return plain, html
 
     except Exception as e:
-        return f"Results processed. Error building summary: {e}"
+        msg = f"Results processed. Error building summary: {e}"
+        return msg, f"<p>{msg}</p>"
 
 
 # ── Drive upload ──────────────────────────────────────────────────────────────
@@ -361,8 +478,8 @@ def main():
         state["incomplete_at_run"] = new_incomplete
         save_state(state)
 
-        body = _build_picks_email(picks_date, pass_num, len(games))
-        _send_email(f"MLB Picks — {picks_date} (Pass {pass_num})", body)
+        body, html = _build_picks_email(picks_date, pass_num, len(games))
+        _send_email(f"MLB Picks — {picks_date} (Pass {pass_num})", body, html)
 
         _commit_state()
         return
@@ -402,8 +519,8 @@ def main():
     state["tracker_done"] = True
     save_state(state)
 
-    body = _build_results_email(picks_date)
-    _send_email(f"MLB Results — {picks_date}", body)
+    body, html = _build_results_email(picks_date)
+    _send_email(f"MLB Results — {picks_date}", body, html)
 
     _commit_state()
 
