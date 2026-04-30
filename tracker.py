@@ -1133,7 +1133,7 @@ def main():
         all_bets = load_all_bets(actuals=actuals)
     except FileNotFoundError as e:
         print(f"\n  ERROR: {e}")
-        if sys.stdin.isatty():
+        if not os.environ.get("CI"):
             input("\nPress Enter to close...")
         return
 
@@ -1168,7 +1168,7 @@ def main():
     print("=" * 62)
     print()
 
-    if sys.stdin.isatty():
+    if not os.environ.get("CI"):
         input("Press Enter to close...")
 
 

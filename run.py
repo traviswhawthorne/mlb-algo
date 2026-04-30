@@ -515,12 +515,14 @@ def main():
             game_label = f"tomorrow ({tomorrow_str})"
     except Exception as e:
         print(f"  ERROR: Could not reach MLB API — {e}")
-        input("\nPress Enter to exit...")
+        if not os.environ.get("CI"):
+            input("\nPress Enter to exit...")
         return
 
     if not games:
         print("  No upcoming games found (off-season or double-check your internet).")
-        input("\nPress Enter to exit...")
+        if not os.environ.get("CI"):
+            input("\nPress Enter to exit...")
         return
 
     print(f"  {len(games)} game(s) found for {game_label}")
@@ -1377,7 +1379,7 @@ def main():
     print()
 
     print(f"\nLog saved: {_log_path}")
-    if sys.stdin.isatty():
+    if not os.environ.get("CI"):
         input("Press Enter to close...")
     _log_file.close()
 

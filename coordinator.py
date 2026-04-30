@@ -210,19 +210,12 @@ def _build_results_email(picks_date):
 
 
 # ── Drive upload ──────────────────────────────────────────────────────────────
+# NOTE: Google Drive upload is disabled — service accounts cannot create files
+# in personal Google Drive (no storage quota). The email is the primary output.
+# The picks JSON is committed back to the repo after each run.
 
 def _upload_to_drive(local_path):
-    if not os.environ.get("GDRIVE_SERVICE_ACCOUNT_JSON"):
-        print(f"  [coord] Drive not configured — skipping upload: {os.path.basename(local_path)}")
-        return
-    if not os.path.exists(local_path):
-        print(f"  [coord] Drive: file not found: {local_path}")
-        return
-    try:
-        from gdrive_uploader import upload_file
-        upload_file(local_path)
-    except Exception as e:
-        print(f"  [coord] Drive upload error ({os.path.basename(local_path)}): {e}")
+    pass
 
 
 # ── Git commit ────────────────────────────────────────────────────────────────
