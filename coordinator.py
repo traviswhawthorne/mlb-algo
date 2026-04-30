@@ -175,8 +175,16 @@ def _build_picks_email(picks_date, pass_num, total_games):
         try: return f"{int(o):+d}"
         except Exception: return str(o)
 
-    def _conf(c):
-        return {"High": "High", "Medium": "Med", "Low": "Low"}.get(c, (c or "?")[:3])
+    def _data_status(g):
+        """Data completeness: pitchers known + lineups confirmed."""
+        ap = g.get("away_pitcher") or ""
+        hp = g.get("home_pitcher") or ""
+        pitchers_ok = ap not in ("", "TBD") and hp not in ("", "TBD")
+        lineups_ok  = (g.get("away_lineup_count", 0) >= 8 and
+                       g.get("home_lineup_count", 0) >= 8)
+        if pitchers_ok and lineups_ok: return "Full"
+        if not pitchers_ok:            return "No SP"
+        return "No LU"
 
     def _flag(b):
         return ("★" if b.get("priority") else "") + ("⚠" if b.get("fade") else "")
@@ -195,7 +203,7 @@ def _build_picks_email(picks_date, pass_num, total_games):
             _odds(b.get("model_odds", "")),
             _odds(b.get("book_odds", "")),
             b.get("ev_pct", ""),
-            _conf(g.get("confidence", "")),
+            _data_status(g),
             _flag(b),
             bool(b.get("priority")),
             bool(b.get("fade")),
@@ -225,8 +233,8 @@ def _build_picks_email(picks_date, pass_num, total_games):
              f"text-align:{align};background:{bg};{extra}")
         return f'<td style="{s}">{val}</td>'
 
-    def _conf_color(c):
-        return {"High": "#22863a", "Med": "#b36200", "Low": "#888"}.get(c, "#333")
+    def _status_color(s):
+        return {"Full": "#22863a", "No LU": "#b36200", "No SP": "#cb2431"}.get(s, "#888")
 
     def _ev_color(ev):
         try:
@@ -246,7 +254,7 @@ def _build_picks_email(picks_date, pass_num, total_games):
             bg, lb = ("#f5f7fa" if i % 2 else "#ffffff"), ""
 
         ec = _ev_color(edge)
-        sc = _conf_color(status)
+        sc = _status_color(status)
 
         cells = "".join([
             _td(time_s,                                            bg=bg, extra=lb),
