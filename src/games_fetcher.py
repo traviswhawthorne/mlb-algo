@@ -6,7 +6,8 @@ No API key required.
 """
 
 import requests
-from datetime import date, datetime
+from collections import defaultdict
+from datetime import date, datetime, timedelta
 
 
 MLB_API_BASE = "https://statsapi.mlb.com/api/v1"
@@ -96,5 +97,29 @@ def get_todays_games(game_date=None):
                 "home_lineup_ids": home_lineup_ids,
                 "officials":       game.get("officials", []),
             })
+
+    # Fix doubleheader G2 placeholder times.
+    # The MLB API often sets G2's gameDate to a few minutes after G1 (e.g. 9:40 AM
+    # when G1 is 9:35 AM). Detect this by finding same-matchup pairs where G2 is
+    # within 30 minutes of G1, and replace G2's time with G1 + 3.5 hours.
+    matchup_groups = defaultdict(list)
+    for g in games:
+        matchup_groups[(g["away_team"], g["home_team"])].append(g)
+
+    for pair in matchup_groups.values():
+        if len(pair) != 2:
+            continue
+        pair.sort(key=lambda g: g["game_time"])
+        g1, g2 = pair
+        try:
+            t1 = datetime.fromisoformat(g1["game_time"].replace("Z", "+00:00"))
+            t2 = datetime.fromisoformat(g2["game_time"].replace("Z", "+00:00"))
+            if t2 - t1 < timedelta(minutes=30):
+                estimated = t1 + timedelta(hours=3, minutes=30)
+                g2["game_time"] = estimated.strftime("%Y-%m-%dT%H:%M:%SZ")
+                print(f"  [games] DH G2 time corrected: {g2['away_team']} @ {g2['home_team']} "
+                      f"→ {g2['game_time']} (est. G1+3.5h)")
+        except Exception:
+            pass
 
     return games
