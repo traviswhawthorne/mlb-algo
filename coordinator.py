@@ -298,10 +298,24 @@ def main():
         output_file = os.environ.get("OUTPUT_FILE", "MLB_Picks.xlsx")
         _upload_to_drive(os.path.join(HERE, output_file))
 
-        state["picks_runs"].append({"ran_at": now.isoformat(), "game_pks": pks})
-        state["incomplete_at_run"] = [
-            g["game_pk"] for g in upcoming_trigger if not _data_complete(g)
-        ]
+        # Mark every game in the picks JSON as covered — run.py processes all games,
+        # not just the ones that triggered this pass.
+        picks_file = os.path.join(DATA_DIR, f"picks_{picks_date}.json")
+        if os.path.exists(picks_file):
+            with open(picks_file) as f:
+                picks_json = json.load(f)
+            all_pks = [g["game_pk"] for g in picks_json.get("games", [])]
+            new_incomplete = [
+                g["game_pk"] for g in picks_json.get("games", [])
+                if g.get("away_pitcher") == "TBD" or g.get("home_pitcher") == "TBD"
+                or g.get("away_lineup_count", 0) < 8 or g.get("home_lineup_count", 0) < 8
+            ]
+        else:
+            all_pks = pks
+            new_incomplete = [g["game_pk"] for g in upcoming_trigger if not _data_complete(g)]
+
+        state["picks_runs"].append({"ran_at": now.isoformat(), "game_pks": all_pks})
+        state["incomplete_at_run"] = new_incomplete
         save_state(state)
 
         body = _build_picks_email(picks_date, pass_num, len(games))
