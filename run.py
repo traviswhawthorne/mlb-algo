@@ -762,15 +762,11 @@ def main():
         home_wrc = adjust_wrc_for_lineup(home_lineup_ids, home_wrc_base, batter_ops)
 
         # Build split-step label so we can see where each drop came from
-        split_parts = []
-        if away_wrc != away_wrc_overall:
-            split_parts.append(f"{away_team.split()[-1]}: {away_wrc_overall}→{away_wrc_base}(split)→{away_wrc}(lineup)")
-        if home_wrc != home_wrc_overall:
-            split_parts.append(f"{home_team.split()[-1]}: {home_wrc_overall}→{home_wrc_base}(split)→{home_wrc}(lineup)")
+        away_breakdown = f"{away_team.split()[-1]}: {away_wrc_overall}→{away_wrc_base}(split)→{away_wrc}(lineup)"
+        home_breakdown = f"{home_team.split()[-1]}: {home_wrc_overall}→{home_wrc_base}(split)→{home_wrc}(lineup)"
         print(f"    wRC+: {away_team.split()[-1]} {away_wrc}  |  {home_team.split()[-1]} {home_wrc}  "
               f"(overall: {away_wrc_overall} / {home_wrc_overall})")
-        if split_parts:
-            print(f"    wRC+ breakdown: {' | '.join(split_parts)}")
+        print(f"    wRC+ breakdown: {away_breakdown} | {home_breakdown}")
 
         # Defensive adjustment — unearned runs allowed per game, blended with prior year
         # A poor defensive team gives opponents extra expected runs
