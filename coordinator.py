@@ -23,11 +23,15 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+import pytz
+_ET = pytz.timezone("America/New_York")
+
 
 # ── State ────────────────────────────────────────────────────────────────────
 
 def _today():
-    return date.today().strftime("%Y-%m-%d")
+    """Today's date in Eastern Time — MLB games run until ~1 AM ET."""
+    return datetime.now(_ET).strftime("%Y-%m-%d")
 
 def _utcnow():
     return datetime.now(timezone.utc)
@@ -73,9 +77,9 @@ def _data_complete(game):
     return has_pitchers and has_lineups
 
 def _all_games_final():
-    """Call MLB API to check if every game today has status = Final."""
+    """Call MLB API to check if every game today (ET) has status = Final."""
     import requests as req
-    today = _today()
+    today = _today()  # ET date
     try:
         url  = f"https://statsapi.mlb.com/api/v1/schedule?sportId=1&date={today}&gameType=R"
         data = req.get(url, timeout=15).json()
