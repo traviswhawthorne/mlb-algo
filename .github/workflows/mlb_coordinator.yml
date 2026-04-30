@@ -2,9 +2,9 @@ name: MLB Coordinator
 
 on:
   schedule:
-    # Every 20 min from noon–7 PM ET (16–23 UTC) and 8 PM–1 AM ET (0–5 UTC)
-    - cron: '0,20,40 16-23 * * *'
-    - cron: '0,20,40 0-5 * * *'
+    - cron: '50 15 * * *'         # 8:50 AM PT early start
+    - cron: '0,20,40 16-23 * * *' # noon–7 PM PT every 20 min
+    - cron: '0,20,40 0-5 * * *'   # 5 PM–10 PM PT every 20 min
   workflow_dispatch:    # allow manual trigger for testing
 
 permissions:
