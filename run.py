@@ -1316,7 +1316,9 @@ def main():
                     "total_line":     (
                         float(b["team"].split()[-1])
                         if b["market"] == "Total" else None
-                    )
+                    ),
+                    "priority":       b.get("priority", False),
+                    "fade":           b.get("fade", False),
                 }
                 for b in g["bets"]
             ]

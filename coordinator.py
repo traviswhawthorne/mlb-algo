@@ -130,34 +130,38 @@ def _build_picks_email(picks_date, pass_num, total_games):
     with open(picks_file) as f:
         picks = json.load(f)
 
-    all_bets      = [b for g in picks.get("games", []) for b in g.get("bets", [])]
-    priority_bets = [b for b in all_bets if b.get("priority")]
-    fade_bets     = [b for b in all_bets if b.get("fade")]
+    games     = picks.get("games", [])
+    all_bets  = [(g, b) for g in games for b in g.get("bets", [])]
+    n_priority = sum(1 for _, b in all_bets if b.get("priority"))
+    n_fade     = sum(1 for _, b in all_bets if b.get("fade"))
 
     lines = [
         f"{total_games} game(s) today | {len(all_bets)} pick(s) | "
-        f"{len(priority_bets)} priority ★ | {len(fade_bets)} fade watch ⚠",
+        f"{n_priority} priority ★ | {n_fade} fade watch ⚠",
         ""
     ]
 
-    def _bet_line(b):
-        label = f"{b['team']}  {b.get('bet_type_label', '')}".rstrip()
-        tag   = ""
+    def _bet_line(g, b):
+        matchup = g.get("matchup", f"{g['away_team']} @ {g['home_team']}")
+        label   = f"{b['team']}  {b.get('bet_type_label', '')}".rstrip()
+        tag     = ""
         if b.get("priority"): tag += " ★"
         if b.get("fade"):     tag += " ⚠"
-        return f"  • {label:<32}  {b['book_odds']:+d}  EV {b['ev_pct']}  ${b['bet_amount']:.2f}{tag}"
+        return f"  {matchup}\n    {label:<30}  {b['book_odds']:+d}  EV {b['ev_pct']}  ${b['bet_amount']:.2f}{tag}"
 
-    if priority_bets:
+    priority_pairs = [(g, b) for g, b in all_bets if b.get("priority")]
+    other_pairs    = [(g, b) for g, b in all_bets if not b.get("priority")]
+
+    if priority_pairs:
         lines.append("PRIORITY (★):")
-        for b in priority_bets:
-            lines.append(_bet_line(b))
+        for g, b in priority_pairs:
+            lines.append(_bet_line(g, b))
         lines.append("")
 
-    other_bets = [b for b in all_bets if not b.get("priority")]
-    if other_bets:
+    if other_pairs:
         lines.append("Other picks:")
-        for b in other_bets:
-            lines.append(_bet_line(b))
+        for g, b in other_pairs:
+            lines.append(_bet_line(g, b))
 
     return "\n".join(lines)
 
