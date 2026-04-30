@@ -36,5 +36,6 @@ jobs:
           GMAIL_APP_PASSWORD:          ${{ secrets.GMAIL_APP_PASSWORD }}
           OUTPUT_FILE:                 MLB_Picks.xlsx
           CI:                          "true"
+          TRIGGER_EVENT:               ${{ github.event_name }}
         run: python coordinator.py
 

@@ -447,10 +447,13 @@ def main():
     covered_pks    = {pk for run in state["picks_runs"] for pk in run["game_pks"]}
     incomplete_pks = set(state.get("incomplete_at_run", []))
 
+    is_manual = os.environ.get("TRIGGER_EVENT") == "workflow_dispatch"
+    trigger_window = timedelta(minutes=90) if is_manual else timedelta(minutes=45)
+
     upcoming_trigger = [
         g for g in games
         if _game_start_utc(g) > now                              # not yet started
-        and _game_start_utc(g) - now <= timedelta(minutes=45)   # within window
+        and _game_start_utc(g) - now <= trigger_window          # within window
         and (g["game_pk"] not in covered_pks                    # not yet covered
              or g["game_pk"] in incomplete_pks)                 # or was incomplete last run
     ]
