@@ -210,12 +210,20 @@ def _build_results_email(picks_date):
 
 
 # ── Drive upload ──────────────────────────────────────────────────────────────
-# NOTE: Google Drive upload is disabled — service accounts cannot create files
-# in personal Google Drive (no storage quota). The email is the primary output.
-# The picks JSON is committed back to the repo after each run.
 
 def _upload_to_drive(local_path):
-    pass
+    """Update a pre-existing Google Drive file (service account as editor)."""
+    if not os.environ.get("GDRIVE_SERVICE_ACCOUNT_JSON"):
+        print(f"  [coord] Drive not configured — skipping: {os.path.basename(local_path)}")
+        return
+    if not os.path.exists(local_path):
+        print(f"  [coord] Drive: file not found locally: {local_path}")
+        return
+    try:
+        from gdrive_uploader import upload_file
+        upload_file(local_path)
+    except Exception as e:
+        print(f"  [coord] Drive upload error ({os.path.basename(local_path)}): {e}")
 
 
 # ── Git commit ────────────────────────────────────────────────────────────────
@@ -327,7 +335,12 @@ def main():
     output_file  = os.environ.get("OUTPUT_FILE", "MLB_Picks.xlsx")
     results_file = output_file.replace("MLB_Picks.xlsx", f"MLB_Results_{picks_date}.xlsx")
     tracker_file = output_file.replace("MLB_Picks.xlsx", "MLB_Tracker.xlsx")
-    _upload_to_drive(os.path.join(HERE, results_file))
+    # Drive uses fixed filenames — copy dated results file to the fixed name for upload
+    results_drive = os.path.join(HERE, "MLB_Results.xlsx")
+    if os.path.exists(os.path.join(HERE, results_file)):
+        import shutil
+        shutil.copy2(os.path.join(HERE, results_file), results_drive)
+    _upload_to_drive(results_drive)
     _upload_to_drive(os.path.join(HERE, tracker_file))
 
     state["results_done"] = True
