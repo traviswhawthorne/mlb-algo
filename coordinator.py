@@ -335,12 +335,6 @@ def main():
     output_file  = os.environ.get("OUTPUT_FILE", "MLB_Picks.xlsx")
     results_file = output_file.replace("MLB_Picks.xlsx", f"MLB_Results_{picks_date}.xlsx")
     tracker_file = output_file.replace("MLB_Picks.xlsx", "MLB_Tracker.xlsx")
-    # Drive uses fixed filenames — copy dated results file to the fixed name for upload
-    results_drive = os.path.join(HERE, "MLB_Results.xlsx")
-    if os.path.exists(os.path.join(HERE, results_file)):
-        import shutil
-        shutil.copy2(os.path.join(HERE, results_file), results_drive)
-    _upload_to_drive(results_drive)
     _upload_to_drive(os.path.join(HERE, tracker_file))
 
     state["results_done"] = True
