@@ -319,15 +319,16 @@ def _build_results_email(picks_date):
             for bet in game.get("bets", []):
                 margin, result = get_margin_and_result(
                     bet, game["away_team"], score["away_score"], score["home_score"])
-                if result in ("WIN", "LOSS"):
-                    pl = calc_profit(result, bet["bet_amount"], bet["book_odds"])
+                if result in ("WIN", "LOSS", "PUSH"):
+                    pl = 0.0 if result == "PUSH" else calc_profit(result, bet["bet_amount"], bet["book_odds"])
                     total_pl += pl
                     wins   += result == "WIN"
                     losses += result == "LOSS"
                     label   = f"{bet['team']} {bet.get('bet_type_label', '')}".rstrip()
                     bet_rows.append((matchup, label, bet["book_odds"], result, pl))
 
-        summary = f"{wins + losses} bet(s) | {wins}W {losses}L | ${total_pl:+.2f}"
+        pushes  = sum(1 for _, _, _, r, _ in bet_rows if r == "PUSH")
+        summary = f"{wins + losses + pushes} bet(s) | {wins}W {losses}L {pushes}P | ${total_pl:+.2f}"
 
         # ── Plain text ────────────────────────────────────────────────────────
         lines = [summary, ""]
@@ -337,7 +338,8 @@ def _build_results_email(picks_date):
 
         # ── HTML ──────────────────────────────────────────────────────────────
         pl_color = "#22863a" if total_pl >= 0 else "#cb2431"
-        summary_html = (f"{wins + losses} bet(s) &nbsp;|&nbsp; {wins}W {losses}L &nbsp;|&nbsp; "
+        push_str = f" {pushes}P" if pushes else ""
+        summary_html = (f"{wins + losses + pushes} bet(s) &nbsp;|&nbsp; {wins}W {losses}L{push_str} &nbsp;|&nbsp; "
                         f'<b style="color:{pl_color}">${total_pl:+.2f}</b>')
 
         H  = "padding:8px 12px;font-size:13px;font-weight:bold;color:#fff;background:#1e3a5f;border:1px solid #1e3a5f;text-align:left;"
@@ -349,8 +351,8 @@ def _build_results_email(picks_date):
 
         rows_html = []
         for i, (matchup, label, odds, result, pl) in enumerate(bet_rows):
-            bg = "#f0fff4" if result == "WIN" else "#fff5f5"
-            rc = "#22863a" if result == "WIN" else "#cb2431"
+            bg = "#f0fff4" if result == "WIN" else "#fffbf0" if result == "PUSH" else "#fff5f5"
+            rc = "#22863a" if result == "WIN" else "#b36200" if result == "PUSH" else "#cb2431"
             pc = "#22863a" if pl >= 0 else "#cb2431"
             cells = "".join([
                 _td(matchup, bg=bg),
