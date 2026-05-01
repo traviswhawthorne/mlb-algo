@@ -1,0 +1,31 @@
+Team,TeamName,PA,R,wOBA,K_pct,wRC+
+,Los Angeles Dodgers,1196,167,0.3468,0.2082,125
+,Atlanta Braves,1226,177,0.3399,0.1974,119
+,Houston Astros,1253,168,0.3395,0.1971,119
+,Chicago Cubs,1240,169,0.3415,0.2073,121
+,Colorado Rockies,1210,137,0.3176,0.2512,96
+,Tampa Bay Rays,1159,137,0.3113,0.1907,98
+,Miami Marlins,1169,135,0.3139,0.2147,100
+,Detroit Tigers,1214,142,0.3266,0.2158,109
+,Arizona Diamondbacks,1101,141,0.315,0.218,100
+,Toronto Blue Jays,1151,122,0.3002,0.1825,91
+,San Francisco Giants,1131,104,0.287,0.2193,82
+,Athletics,1191,131,0.313,0.2292,98
+,Pittsburgh Pirates,1259,153,0.3104,0.2431,97
+,Washington Nationals,1261,175,0.3142,0.2213,100
+,Milwaukee Brewers,1166,160,0.311,0.2084,98
+,Kansas City Royals,1170,126,0.3123,0.2205,97
+,St. Louis Cardinals,1208,155,0.3182,0.2194,104
+,Baltimore Orioles,1175,145,0.3181,0.2417,104
+,Los Angeles Angels,1247,150,0.3217,0.2518,105
+,Texas Rangers,1162,120,0.3039,0.2435,93
+,San Diego Padres,1123,139,0.3033,0.2208,94
+,Seattle Mariners,1215,134,0.3118,0.237,102
+,Minnesota Twins,1232,154,0.3142,0.2265,100
+,Boston Red Sox,1163,123,0.2941,0.2218,84
+,New York Yankees,1170,153,0.3258,0.2385,109
+,Cleveland Guardians,1182,123,0.3024,0.2098,92
+,Philadelphia Phillies,1176,118,0.2985,0.2117,88
+,New York Mets,1146,106,0.279,0.212,76
+,Chicago White Sox,1188,129,0.3077,0.2441,96
+,Cincinnati Reds,1171,133,0.3077,0.2442,93
