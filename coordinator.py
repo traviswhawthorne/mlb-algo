@@ -24,14 +24,14 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 import pytz
-_ET = pytz.timezone("America/New_York")
+_PT = pytz.timezone("America/Los_Angeles")
 
 
 # ── State ────────────────────────────────────────────────────────────────────
 
 def _today():
-    """Today's date in Eastern Time — MLB games run until ~1 AM ET."""
-    return datetime.now(_ET).strftime("%Y-%m-%d")
+    """Today's date in Pacific Time — late west coast games run until ~11 PM PT."""
+    return datetime.now(_PT).strftime("%Y-%m-%d")
 
 def _utcnow():
     return datetime.now(timezone.utc)
@@ -98,7 +98,8 @@ def _all_games_final():
 def _run(script, *args):
     cmd = [sys.executable, os.path.join(HERE, script)] + list(args)
     print(f"  [coord] Running: {' '.join(os.path.basename(c) for c in cmd)}")
-    result = subprocess.run(cmd, cwd=HERE)
+    env = {**os.environ, "CI": "1"}
+    result = subprocess.run(cmd, cwd=HERE, env=env)
     if result.returncode != 0:
         print(f"  [coord] WARNING: {script} exited with code {result.returncode}")
     return result.returncode
@@ -435,13 +436,15 @@ def main():
     print(f"{'='*62}")
 
     state = load_state()
-    games = get_todays_games()
+    games = get_todays_games(game_date=picks_date)  # use ET date, not UTC date
 
     if not games:
-        print("[coord] No games today — exiting.")
-        return
-
-    print(f"[coord] {len(games)} game(s) found for {picks_date}.")
+        if not state["picks_runs"]:
+            print("[coord] No games today — exiting.")
+            return
+        print(f"[coord] All games Final for {picks_date}.")
+    else:
+        print(f"[coord] {len(games)} game(s) found for {picks_date}.")
 
     # ── PICKS PHASE ───────────────────────────────────────────────────────────
     covered_pks    = {pk for run in state["picks_runs"] for pk in run["game_pks"]}
@@ -505,16 +508,17 @@ def main():
         print("[coord] No picks runs recorded today — skipping results phase.")
         return
 
-    last_start = max(_game_start_utc(g) for g in games)
-    if now < last_start + timedelta(hours=2):
-        wait_min = int((last_start + timedelta(hours=2) - now).total_seconds() / 60)
-        if now < last_start:
-            starts_in = int((last_start - now).total_seconds() / 60)
-            print(f"[coord] Last game starts in {starts_in}m — need 2h buffer after that. Check again in ~{wait_min}m.")
-        else:
-            elapsed_min = int((now - last_start).total_seconds() / 60)
-            print(f"[coord] Last game started {elapsed_min}m ago — need 2h buffer. Check again in ~{wait_min}m.")
-        return
+    if games:
+        last_start = max(_game_start_utc(g) for g in games)
+        if now < last_start + timedelta(hours=2):
+            wait_min = int((last_start + timedelta(hours=2) - now).total_seconds() / 60)
+            if now < last_start:
+                starts_in = int((last_start - now).total_seconds() / 60)
+                print(f"[coord] Last game starts in {starts_in}m — need 2h buffer after that. Check again in ~{wait_min}m.")
+            else:
+                elapsed_min = int((now - last_start).total_seconds() / 60)
+                print(f"[coord] Last game started {elapsed_min}m ago — need 2h buffer. Check again in ~{wait_min}m.")
+            return
 
     if not _all_games_final():
         print("[coord] Games still in progress — will check again next poll.")
