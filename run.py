@@ -516,10 +516,13 @@ def main():
     print("\n[2/4] Fetching today's schedule from MLB ...")
     from datetime import timedelta
     try:
-        games      = get_todays_games()
-        games_date = date.today()
+        # GAME_DATE is set by the coordinator (PT date) to avoid UTC midnight rollover
+        # issues on GitHub Actions for late west coast games.
+        _forced_date = os.environ.get("GAME_DATE")
+        games      = get_todays_games(_forced_date)
+        games_date = date.fromisoformat(_forced_date) if _forced_date else date.today()
         game_label = "today"
-        if not games:
+        if not games and not _forced_date:
             games_date   = date.today() + timedelta(days=1)
             tomorrow_str = games_date.strftime("%Y-%m-%d")
             print(f"  No upcoming games today — checking tomorrow ({tomorrow_str}) ...")

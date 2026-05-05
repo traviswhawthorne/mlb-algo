@@ -95,10 +95,10 @@ def _all_games_final():
 
 # ── Subprocess runners ────────────────────────────────────────────────────────
 
-def _run(script, *args):
+def _run(script, *args, extra_env=None):
     cmd = [sys.executable, os.path.join(HERE, script)] + list(args)
     print(f"  [coord] Running: {' '.join(os.path.basename(c) for c in cmd)}")
-    env = {**os.environ, "CI": "1"}
+    env = {**os.environ, "CI": "1", **(extra_env or {})}
     result = subprocess.run(cmd, cwd=HERE, env=env)
     if result.returncode != 0:
         print(f"  [coord] WARNING: {script} exited with code {result.returncode}")
@@ -475,7 +475,7 @@ def main():
         print(f"[coord] Picks pass {pass_num}: {len(upcoming_trigger)} game(s) "
               f"approaching (pks: {pks})")
 
-        _run("run.py")
+        _run("run.py", extra_env={"GAME_DATE": picks_date})
 
         output_file = os.environ.get("OUTPUT_FILE", "MLB_Picks.xlsx")
         _upload_to_drive(os.path.join(HERE, output_file))
