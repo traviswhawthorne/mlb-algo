@@ -310,8 +310,8 @@
       "home_win_prob": 0.6264,
       "home_model_odds": -170,
       "away_model_odds": 170,
-      "home_ml_odds": -215,
-      "away_ml_odds": 184,
+      "home_ml_odds": null,
+      "away_ml_odds": null,
       "park_factor": 0.98,
       "weather": "72\u00b0F, 13 mph SW",
       "umpire": "TBD",
@@ -327,37 +327,8 @@
       "home_bp_era_adj": 0.1,
       "away_bp_status": "fresh",
       "home_bp_status": "normal",
-      "book_total_line": 11.5,
-      "bets": [
-        {
-          "market": "Moneyline",
-          "team": "Cincinnati Reds",
-          "bet_type_label": "ML",
-          "book_odds": 184,
-          "model_odds": 170,
-          "bet_amount": 10,
-          "model_prob": 0.3736,
-          "ev": 0.061,
-          "ev_pct": "+6.1%",
-          "total_line": null,
-          "priority": false,
-          "fade": false
-        },
-        {
-          "market": "Total",
-          "team": "Under 11.5",
-          "bet_type_label": "",
-          "book_odds": -111,
-          "model_odds": -190,
-          "bet_amount": 25,
-          "model_prob": 0.653,
-          "ev": 0.2413,
-          "ev_pct": "+24.1%",
-          "total_line": 11.5,
-          "priority": false,
-          "fade": false
-        }
-      ]
+      "book_total_line": null,
+      "bets": []
     },
     {
       "game_pk": 824119,
@@ -611,12 +582,12 @@
           "market": "Total",
           "team": "Over 7.5",
           "bet_type_label": "",
-          "book_odds": -115,
+          "book_odds": -116,
           "model_odds": -195,
           "bet_amount": 25,
           "model_prob": 0.6607,
-          "ev": 0.2352,
-          "ev_pct": "+23.5%",
+          "ev": 0.2303,
+          "ev_pct": "+23.0%",
           "total_line": 7.5,
           "priority": true,
           "fade": false
