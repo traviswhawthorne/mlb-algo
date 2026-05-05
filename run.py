@@ -31,10 +31,16 @@ class _Tee:
         self.streams = streams
     def write(self, data):
         for s in self.streams:
-            s.write(data)
+            try:
+                s.write(data)
+            except (ValueError, OSError):
+                pass
     def flush(self):
         for s in self.streams:
-            s.flush()
+            try:
+                s.flush()
+            except (ValueError, OSError):
+                pass
 
 _log_dir = os.path.join(os.path.dirname(__file__), "logs")
 os.makedirs(_log_dir, exist_ok=True)
@@ -389,6 +395,10 @@ def _is_fade_bet(bet, book_total_line):
     When the model bets Over on a game with a 9.0–10.5 total, the Under
     has historically won 61.4% of the time. Flag for monitoring — not yet
     enough 2026 live data to act on, but tracking it here to build the sample.
+
+    Excludes Rockies home games: Coors Field totals run 11–14+, so a 10-total
+    there is a suppressed line (ace/weather), not the same pattern. Zero Coors
+    games appeared in the backtest fade sample.
     """
     if _is_priority_bet(bet):
         return False
@@ -397,6 +407,8 @@ def _is_fade_bet(bet, book_total_line):
     if not str(bet.get("team", "")).startswith("Over"):
         return False
     if book_total_line is None:
+        return False
+    if "colorado" in str(bet.get("home_team", "")).lower():
         return False
     return 9.0 <= book_total_line <= 10.5
 

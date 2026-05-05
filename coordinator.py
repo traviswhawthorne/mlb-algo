@@ -457,10 +457,16 @@ def main():
 
     upcoming_trigger = [
         g for g in games
-        if _game_start_utc(g) > now                              # not yet started
-        and _game_start_utc(g) - now <= trigger_window          # within window
-        and (g["game_pk"] not in covered_pks                    # not yet covered
-             or g["game_pk"] in incomplete_pks)                 # or was incomplete last run
+        if (
+            # New game: not yet covered and within trigger window before start
+            (g["game_pk"] not in covered_pks
+             and _game_start_utc(g) > now
+             and _game_start_utc(g) - now <= trigger_window)
+            or
+            # Incomplete game: re-run up to 30 min past scheduled start (covers Pre-Game/Warmup)
+            (g["game_pk"] in incomplete_pks
+             and _game_start_utc(g) > now - timedelta(minutes=30))
+        )
     ]
 
     if upcoming_trigger:

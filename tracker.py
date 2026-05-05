@@ -133,6 +133,15 @@ def load_all_bets(actuals=None):
                     pl     = None
                     eff_pl = None
 
+                priority  = bet.get("priority", False)
+                fade_flag = bet.get("fade", False)
+                if fade_flag and result in ("WIN", "LOSS"):
+                    fade_result = "WIN" if result == "LOSS" else "LOSS"
+                    fade_pl     = calc_profit(fade_result, eff_amount, eff_odds)
+                else:
+                    fade_result = None
+                    fade_pl     = None
+
                 # Home/Away classification (Total bets get "Total" side)
                 mkt = bet["market"]
                 if "Total" in mkt:
@@ -198,6 +207,10 @@ def load_all_bets(actuals=None):
                     "margin":       margin,
                     "profit_loss":  pl,
                     "eff_pl":       eff_pl,
+                    "priority":     priority,
+                    "fade":         fade_flag,
+                    "fade_result":  fade_result,
+                    "fade_pl":      fade_pl,
                 })
 
     # Assign EV and odds buckets after all bets are loaded
@@ -342,6 +355,10 @@ def write_tracker(all_bets, output_file):
                                   "num_format": "0.0%"})
     date_fmt    = wb.add_format({"border": 1, "align": "center",
                                   "num_format": "mmm dd yyyy"})
+    pri_tag_fmt  = wb.add_format({"border": 1, "align": "center", "bold": True,
+                                   "bg_color": "#FFD966", "font_color": "#7f5000"})
+    fade_tag_fmt = wb.add_format({"border": 1, "align": "center", "bold": True,
+                                   "bg_color": "#F4CCCC", "font_color": "#9c0006"})
 
     def _conf_fmt(t):
         return {"High": conf_high, "Medium": conf_med}.get(t, conf_low)
@@ -389,13 +406,14 @@ def write_tracker(all_bets, output_file):
         "Date", "Time (PT)", "Matchup", "Market", "Pick",
         "Bet Placed",
         "Model Prob", "Book Odds", "Odds Taken", "Edge", "Confidence",
-        "Bet ($)", "Result", "Away Score", "Home Score", "Margin", "Profit / Loss"
+        "Bet ($)", "Result", "Away Score", "Home Score", "Margin", "Profit / Loss",
+        "Flag", "Fade Result"
     ]
     ws1.set_row(1, 30)
     for col, h in enumerate(headers):
         ws1.write(1, col, h, header_fmt)
 
-    widths = [12, 11, 26, 11, 22, 10, 11, 11, 11, 9, 11, 12, 8, 13, 13, 9, 14]
+    widths = [12, 11, 26, 11, 22, 10, 11, 11, 11, 9, 11, 12, 8, 13, 13, 9, 14, 9, 11]
     for i, w in enumerate(widths):
         ws1.set_column(i, i, w)
 
@@ -449,6 +467,14 @@ def write_tracker(all_bets, output_file):
         ws1.write(r, 14, f"{b['home_team']} {b['home_score']}", row_norm)
         ws1.write(r, 15, m  if m  is not None else "—",  _margin_fmt(m) if is_placed else skipped_fmt)
         ws1.write(r, 16, pl if pl is not None else "—",  _pl_fmt(pl)    if is_placed else skipped_fmt)
+
+        flag_str = "★ Priority" if b.get("priority") else ("⚠ Fade" if b.get("fade") else "")
+        flag_fmt = pri_tag_fmt if b.get("priority") else (fade_tag_fmt if b.get("fade") else normal)
+        ws1.write(r, 17, flag_str, flag_fmt if is_placed else skipped_fmt)
+
+        fr = b.get("fade_result")
+        ws1.write(r, 18, fr if fr else "—",
+                  _result_fmt(fr) if (fr and is_placed) else (normal if is_placed else skipped_fmt))
 
     # ================================================================
     # SHEET 2 — DAILY SUMMARY
@@ -1109,6 +1135,82 @@ def write_tracker(all_bets, output_file):
         ws12.write(r, 1, change, cl_left_bold)
         ws12.write(r, 2, detail, cl_left)
         ws12.write(r, 3, impact, cl_impact_pos)
+
+    # ================================================================
+    # SHEET 13 — PRIORITY / FADE PERFORMANCE
+    # ================================================================
+    ws13 = wb.add_worksheet("Priority & Fade")
+    ws13.set_zoom(90)
+    ws13.set_row(0, 28)
+    ws13.merge_range("A1:I1", "PRIORITY & FADE PERFORMANCE", title_fmt)
+
+    pf_headers = ["Group", "Bets", "W", "L", "P", "Win %", "Staked", "P&L", "ROI"]
+    ws13.set_row(1, 30)
+    for col, h in enumerate(pf_headers):
+        ws13.write(1, col, h, header_fmt)
+    for i, w in enumerate([22, 7, 6, 6, 6, 9, 13, 13, 9]):
+        ws13.set_column(i, i, w)
+
+    priority_bets = [b for b in placed if b.get("priority")]
+    fade_bets     = [b for b in placed if b.get("fade")]
+
+    # Fade stats graded as the model's pick (model direction)
+    def _fade_stats_model(bets):
+        done   = [b for b in bets if b["result"] != "PENDING"]
+        wins   = sum(1 for b in done if b["result"] == "WIN")
+        losses = sum(1 for b in done if b["result"] == "LOSS")
+        pushes = sum(1 for b in done if b["result"] == "PUSH")
+        staked = sum(b["eff_amount"] for b in done)
+        pl     = sum(b["eff_pl"] for b in done if b["eff_pl"] is not None)
+        win_pct = wins / (wins + losses) if (wins + losses) > 0 else 0.0
+        roi     = pl / staked if staked > 0 else 0.0
+        return {"bets": len(done), "wins": wins, "losses": losses, "pushes": pushes,
+                "win_pct": win_pct, "staked": staked, "pl": pl, "roi": roi}
+
+    # Fade stats graded as the opposite bet (fade direction — what you'd actually bet)
+    def _fade_stats_opposite(bets):
+        done   = [b for b in bets if b.get("fade_result") is not None]
+        wins   = sum(1 for b in done if b["fade_result"] == "WIN")
+        losses = sum(1 for b in done if b["fade_result"] == "LOSS")
+        pushes = sum(1 for b in done if b["fade_result"] == "PUSH")
+        staked = sum(b["eff_amount"] for b in done)
+        pl     = sum(b["fade_pl"] for b in done if b["fade_pl"] is not None)
+        win_pct = wins / (wins + losses) if (wins + losses) > 0 else 0.0
+        roi     = pl / staked if staked > 0 else 0.0
+        return {"bets": len(done), "wins": wins, "losses": losses, "pushes": pushes,
+                "win_pct": win_pct, "staked": staked, "pl": pl, "roi": roi}
+
+    section_gold = wb.add_format({
+        "bold": True, "bg_color": "#FFD966", "font_color": "#7f5000",
+        "border": 1, "align": "center", "font_size": 11
+    })
+    section_red = wb.add_format({
+        "bold": True, "bg_color": "#F4CCCC", "font_color": "#9c0006",
+        "border": 1, "align": "center", "font_size": 11
+    })
+
+    rows_data = [
+        ("★ Priority (model pick)",    priority_bets, _fade_stats_model,    section_gold),
+        ("All Bets",                   placed,        _stats,               section_fmt),
+        ("⚠ Fade — model direction",   fade_bets,     _fade_stats_model,    fade_tag_fmt),
+        ("⚠ Fade — opposite (bet Under)", fade_bets,  _fade_stats_opposite, section_gold),
+    ]
+
+    for row_i, (label, bets, stat_fn, lbl_fmt) in enumerate(rows_data, start=2):
+        s = stat_fn(bets)
+        ws13.write(row_i, 0, label,       lbl_fmt)
+        ws13.write(row_i, 1, s["bets"],   normal)
+        ws13.write(row_i, 2, s["wins"],   green_cell)
+        ws13.write(row_i, 3, s["losses"], red_cell)
+        ws13.write(row_i, 4, s["pushes"], yellow_cell)
+        ws13.write(row_i, 5, s["win_pct"], pct_fmt)
+        ws13.write(row_i, 6, s["staked"], money)
+        ws13.write(row_i, 7, s["pl"],     _pl_fmt(s["pl"]))
+        ws13.write(row_i, 8, s["roi"],    pct_fmt)
+
+    ws13.write(7, 0,
+        "Note: 'Fade — opposite' grades each Fade-flagged Over bet as if you bet the Under instead.",
+        wb.add_format({"italic": True, "font_color": "#666666", "align": "left"}))
 
     wb.close()
     print(f"  Saved: {output_file}")
