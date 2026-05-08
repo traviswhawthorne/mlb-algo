@@ -1,0 +1,34 @@
+name: Send Picks Email
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Picks date (YYYY-MM-DD)'
+        required: false
+        default: ''
+      pass_num:
+        description: 'Pass number for subject line'
+        required: false
+        default: '1'
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send picks email
+        env:
+          GMAIL_USER:        ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          PICKS_DATE:        ${{ inputs.date }}
+          PASS_NUM:          ${{ inputs.pass_num }}
+        run: python send_picks_email.py

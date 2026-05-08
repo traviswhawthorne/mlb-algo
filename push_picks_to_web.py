@@ -244,6 +244,7 @@ def _git_push(file_path, commit_msg):
                 print(f"  Web push: already up to date, no push needed.")
                 return
             raise subprocess.CalledProcessError(result.returncode, "git commit")
+        subprocess.run(["git", "-C", RESUME_REPO, "pull", "--rebase"], check=True)
         subprocess.run(["git", "-C", RESUME_REPO, "push"], check=True)
         print(f"  Web push: pushed to GitHub ({commit_msg})")
     except subprocess.CalledProcessError as e:

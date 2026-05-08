@@ -15,6 +15,8 @@ Team offense: true wRC+ computed from wOBA using standard FanGraphs linear weigh
   Park adjustment removes home park effect so the model can apply it cleanly.
 """
 
+import csv
+import io
 import os
 import json
 import requests
@@ -1211,30 +1213,42 @@ def get_pitcher_velocity_trends(season):
     cache_file = os.path.join(CACHE_DIR, f"pitcher_velo_{season}_{date.today()}.json")
     if os.path.exists(cache_file):
         with open(cache_file) as f:
-            return json.load(f)
+            cached = json.load(f)
+        if cached:
+            return cached
 
     print("  Downloading pitcher velocity trends from Baseball Savant ...")
 
     def _fetch(yr):
+        # Statcast search grouped by pitcher, filtered to FF pitch type — more stable than the leaderboard page
         url = (
-            "https://baseballsavant.mlb.com/leaderboard/pitch-arsenal-stats"
-            f"?type=pitcher&pitchType=FF&year={yr}&team=&min=50"
-            "&sort=avg_speed&sortDir=desc"
+            "https://baseballsavant.mlb.com/statcast_search/csv"
+            f"?all=true&hfPT=FF%7C&hfGT=R%7C&hfSea={yr}%7C"
+            "&player_type=pitcher&group_by=name&min_pitches=50"
+            "&sort_col=pitches&sort_order=desc"
         )
         try:
-            resp = requests.get(url, timeout=20,
-                                headers={"User-Agent": "Mozilla/5.0"})
+            resp = requests.get(url, timeout=30,
+                                headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"})
             resp.raise_for_status()
-            raw = resp.json()
-            # Response may be a bare list or wrapped in {"data": [...]}
-            rows = raw if isinstance(raw, list) else raw.get("data", [])
+            text = resp.text.strip()
+            if not text or text.startswith("<"):
+                print(f"  WARNING: Savant velocity fetch returned unexpected response ({yr})")
+                return {}
+            reader = csv.DictReader(io.StringIO(text))
             out = {}
-            for p in rows:
-                last  = (p.get("last_name")  or "").strip()
-                first = (p.get("first_name") or "").strip()
-                speed = p.get("avg_speed")
-                if last and first and speed is not None:
-                    out[f"{first} {last}"] = float(speed)
+            for p in reader:
+                name  = (p.get("player_name") or "").strip()
+                speed = p.get("velocity")
+                if name and speed:
+                    try:
+                        # Savant uses "Last, First" — convert to "First Last"
+                        if ", " in name:
+                            last, first = name.split(", ", 1)
+                            name = f"{first} {last}"
+                        out[name] = float(speed)
+                    except ValueError:
+                        pass
             return out
         except Exception as e:
             print(f"  WARNING: Savant velocity fetch failed ({yr}) — {e}")
@@ -1260,7 +1274,7 @@ def get_pitcher_velocity_trends(season):
     with open(cache_file, "w") as f:
         json.dump(result, f)
 
-    declines = sum(1 for d in result.values() if d <= -1.0)
+    declines = sum(1 for d in result.values() if d["delta"] <= -1.0)
     print(f"  Velocity trends: {len(result)} pitchers matched "
           f"({declines} with 1+ mph decline)")
     return result
