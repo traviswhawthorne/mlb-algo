@@ -8,6 +8,12 @@ __pycache__/
 .next/
 *.local.json
 
+# GCP service account credentials — never commit
+*service_account*.json
+*-494820-*.json
+credentials*.json
+gcp_key*.json
+
 # Cache directory (large, re-generated on each run)
 cache/
 
