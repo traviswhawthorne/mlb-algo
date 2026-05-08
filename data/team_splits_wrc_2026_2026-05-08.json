@@ -1,0 +1,122 @@
+{
+  "Los Angeles Dodgers": {
+    "vs_R": 122,
+    "vs_L": 128
+  },
+  "Atlanta Braves": {
+    "vs_R": 120,
+    "vs_L": 122
+  },
+  "Houston Astros": {
+    "vs_R": 115,
+    "vs_L": 113
+  },
+  "Athletics": {
+    "vs_R": 108,
+    "vs_L": 83
+  },
+  "Toronto Blue Jays": {
+    "vs_R": 94,
+    "vs_L": 85
+  },
+  "Tampa Bay Rays": {
+    "vs_R": 98,
+    "vs_L": 95
+  },
+  "Miami Marlins": {
+    "vs_R": 103,
+    "vs_L": 85
+  },
+  "Detroit Tigers": {
+    "vs_R": 105,
+    "vs_L": 96
+  },
+  "Colorado Rockies": {
+    "vs_R": 103,
+    "vs_L": 79
+  },
+  "Milwaukee Brewers": {
+    "vs_R": 105,
+    "vs_L": 79
+  },
+  "Chicago Cubs": {
+    "vs_R": 114,
+    "vs_L": 138
+  },
+  "Texas Rangers": {
+    "vs_R": 105,
+    "vs_L": 61
+  },
+  "New York Yankees": {
+    "vs_R": 120,
+    "vs_L": 125
+  },
+  "Pittsburgh Pirates": {
+    "vs_R": 105,
+    "vs_L": 91
+  },
+  "Philadelphia Phillies": {
+    "vs_R": 97,
+    "vs_L": 77
+  },
+  "St. Louis Cardinals": {
+    "vs_R": 106,
+    "vs_L": 94
+  },
+  "Kansas City Royals": {
+    "vs_R": 97,
+    "vs_L": 98
+  },
+  "Seattle Mariners": {
+    "vs_R": 107,
+    "vs_L": 81
+  },
+  "Minnesota Twins": {
+    "vs_R": 98,
+    "vs_L": 104
+  },
+  "Baltimore Orioles": {
+    "vs_R": 100,
+    "vs_L": 101
+  },
+  "San Francisco Giants": {
+    "vs_R": 71,
+    "vs_L": 86
+  },
+  "New York Mets": {
+    "vs_R": 80,
+    "vs_L": 81
+  },
+  "San Diego Padres": {
+    "vs_R": 94,
+    "vs_L": 89
+  },
+  "Washington Nationals": {
+    "vs_R": 93,
+    "vs_L": 122
+  },
+  "Los Angeles Angels": {
+    "vs_R": 95,
+    "vs_L": 113
+  },
+  "Arizona Diamondbacks": {
+    "vs_R": 85,
+    "vs_L": 117
+  },
+  "Chicago White Sox": {
+    "vs_R": 91,
+    "vs_L": 112
+  },
+  "Cincinnati Reds": {
+    "vs_R": 92,
+    "vs_L": 91
+  },
+  "Boston Red Sox": {
+    "vs_R": 80,
+    "vs_L": 112
+  },
+  "Cleveland Guardians": {
+    "vs_R": 91,
+    "vs_L": 111
+  }
+}
