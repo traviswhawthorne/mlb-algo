@@ -1208,19 +1208,26 @@ def get_pitcher_velocity_trends(season):
       positive delta = velocity gain  (pitcher may have improved)
 
     Pitchers with fewer than 50 four-seamers in either season are excluded.
-    Results are cached daily.
+    Results are cached at the season level and refreshed every 7 days.
+    Savant blocks GitHub Actions IPs, so if the fetch fails the existing
+    committed cache is used as a fallback rather than returning empty.
     """
-    cache_file = os.path.join(CACHE_DIR, f"pitcher_velo_{season}_{date.today()}.json")
+    cache_file = os.path.join(CACHE_DIR, f"pitcher_velo_{season}.json")
+
+    existing = {}
     if os.path.exists(cache_file):
         with open(cache_file) as f:
-            cached = json.load(f)
-        if cached:
-            return cached
+            existing = json.load(f)
+
+    # Skip refresh if data is fresh (< 7 days old)
+    if existing and os.path.exists(cache_file):
+        age_days = (date.today() - date.fromtimestamp(os.path.getmtime(cache_file))).days
+        if age_days < 7:
+            return existing
 
     print("  Downloading pitcher velocity trends from Baseball Savant ...")
 
     def _fetch(yr):
-        # Statcast search grouped by pitcher, filtered to FF pitch type — more stable than the leaderboard page
         url = (
             "https://baseballsavant.mlb.com/statcast_search/csv"
             f"?all=true&hfPT=FF%7C&hfGT=R%7C&hfSea={yr}%7C"
@@ -1242,7 +1249,6 @@ def get_pitcher_velocity_trends(season):
                 speed = p.get("velocity")
                 if name and speed:
                     try:
-                        # Savant uses "Last, First" — convert to "First Last"
                         if ", " in name:
                             last, first = name.split(", ", 1)
                             name = f"{first} {last}"
@@ -1258,8 +1264,9 @@ def get_pitcher_velocity_trends(season):
     prior   = _fetch(season - 1)
 
     if not current:
-        with open(cache_file, "w") as f:
-            json.dump({}, f)
+        if existing:
+            print(f"  Velocity fetch failed — using existing cache ({len(existing)} pitchers)")
+            return existing
         return {}
 
     result = {}
