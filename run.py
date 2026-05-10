@@ -426,28 +426,6 @@ def _is_priority_bet(bet):
     return False
 
 
-def _is_fade_bet(bet, book_total_line):
-    """
-    Backtest fade signal (2018/2019/2021 — 101 bets, +18.7% flip ROI):
-    When the model bets Over on a game with a 9.0–10.5 total, the Under
-    has historically won 61.4% of the time. Flag for monitoring — not yet
-    enough 2026 live data to act on, but tracking it here to build the sample.
-
-    Excludes Rockies home games: Coors Field totals run 11–14+, so a 10-total
-    there is a suppressed line (ace/weather), not the same pattern. Zero Coors
-    games appeared in the backtest fade sample.
-    """
-    if _is_priority_bet(bet):
-        return False
-    if bet.get("market") not in ("Total", "F5 Total"):
-        return False
-    if not str(bet.get("team", "")).startswith("Over"):
-        return False
-    if book_total_line is None:
-        return False
-    if "colorado" in str(bet.get("home_team", "")).lower():
-        return False
-    return 9.0 <= book_total_line <= 10.5
 
 
 # ------------------------------------------------------------------ #
@@ -1215,16 +1193,11 @@ def main():
         # Mark priority and fade bets (backtest-optimized filters)
         for b in bets:
             b["priority"] = _is_priority_bet(b)
-            b["fade"]     = _is_fade_bet(b, tot_line)
 
         # Print priority bets only
         priority_bets = [b for b in bets if b["priority"]]
-        fade_bets     = [b for b in bets if b["fade"]]
         if priority_bets:
-            header = f"    >>> {len(priority_bets)} PRIORITY BET(S)"
-            if fade_bets:
-                header += f"  |  {len(fade_bets)} FADE WATCH ⚠"
-            print(header + ":")
+            print(f"    >>> {len(priority_bets)} PRIORITY BET(S):")
             for bet in priority_bets:
                 bet_desc = f"{bet['team']}  {bet['bet_type_label']}".rstrip()
                 from ev_calculator import american_to_decimal
@@ -1232,12 +1205,11 @@ def main():
                 disagreement = abs(bet["model_prob"] - book_imp)
                 flag = "  *** SANITY CHECK: model vs market gap >{:.0f}pp — verify inputs".format(
                     disagreement * 100) if disagreement >= 0.30 else ""
-                fade_tag = "  ⚠ FADE WATCH" if bet["fade"] else ""
                 print(f"        {bet_desc}"
                       f"  @  {bet['book_odds']:+d}"
                       f"  |  EV: {bet['ev_pct']}"
                       f"  |  Bet: ${bet['bet_amount']:.2f}"
-                      f"{flag}{fade_tag}")
+                      f"{flag}")
         else:
             print(f"    No priority bets (home prob: {home_prob:.1%})")
         print()
@@ -1373,7 +1345,6 @@ def main():
                         if b["market"] == "Total" else None
                     ),
                     "priority":       b.get("priority", False),
-                    "fade":           b.get("fade", False),
                 }
                 for b in g["bets"]
             ]

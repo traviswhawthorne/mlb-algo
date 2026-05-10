@@ -172,19 +172,11 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
         "bold": True, "font_color": "#7B4F00", "bg_color": "#FFD966",
         "border": 1, "align": "center"
     })
-    fade_fmt = wb.add_format({
-        "bold": True, "font_color": "#FFFFFF", "bg_color": "#E06020",
-        "border": 1, "align": "center"
-    })
-
     def _conf_fmt(tier):
         return {"High": conf_high_fmt, "Medium": conf_med_fmt}.get(tier, conf_low_fmt)
 
     def _is_priority(bet):
         return bool(bet.get("priority", False))
-
-    def _is_fade(bet, game):
-        return bool(bet.get("fade", False))
 
     status_ok_fmt = wb.add_format({
         "bg_color": "#c6efce", "border": 1, "align": "left",
@@ -291,26 +283,18 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
                 all_bets_flat.append((game, bet))
     all_bets_flat.sort(key=lambda x: _game_time_key(x[0]))
 
-    # Sort priority bets first, fade bets last within each time slot
-    def _sort_key(x):
-        game, bet = x
-        is_pri  = _is_priority(bet)
-        is_fade = _is_fade(bet, game)
-        return (_game_time_key(game), 0 if is_pri else (2 if is_fade else 1))
-    all_bets_flat.sort(key=_sort_key)
+    all_bets_flat.sort(key=lambda x: _game_time_key(x[0]))
 
     # --- Recommended bets (sorted by time, priority first) ---
     ws1.set_row(row, 18)
-    ws1.merge_range(row, 0, row, 16, "RECOMMENDED BETS  —  sorted by game time  (★ = Priority  |  ⚠ = Fade Watch)", section_green_fmt)
+    ws1.merge_range(row, 0, row, 16, "PRIORITY BETS  —  sorted by game time", section_green_fmt)
     row += 1
 
     if all_bets_flat:
         for game, bet in all_bets_flat:
             label    = f"{bet['team']}  {bet['bet_type_label']}".rstrip()
             conf     = game.get("confidence", "Low")
-            is_pri   = _is_priority(bet)
-            is_fade  = _is_fade(bet, game)
-            pick_fmt = priority_fmt if is_pri else (fade_fmt if is_fade else green_cell)
+            pick_fmt = priority_fmt
             platoon_note = "  |  ".join(filter(None, [
                 f"Away: {game['away_platoon_flag']}" if game.get("away_platoon_flag") else "",
                 f"Home: {game['home_platoon_flag']}" if game.get("home_platoon_flag") else "",
@@ -333,12 +317,7 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
             ws1.write(row, 14, bp_text, bp_fmt)
             status_text, status_ok = _data_status(game)
             ws1.write(row, 15, status_text, status_ok_fmt if status_ok else status_warn_fmt)
-            if is_pri:
-                ws1.write(row, 16, "★ PRIORITY", priority_fmt)
-            elif is_fade:
-                ws1.write(row, 16, "⚠ FADE WATCH", fade_fmt)
-            else:
-                ws1.write(row, 16, "—", normal)
+            ws1.write(row, 16, "★", priority_fmt)
             row += 1
     else:
         ws1.merge_range(row, 0, row, 15, "No +EV bets found today", red_cell)
