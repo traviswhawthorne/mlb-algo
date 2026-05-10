@@ -406,6 +406,9 @@ def _is_priority_bet(bet):
         # Road favorites: -4.9% ROI (225 bets) vs home fav +9.2%, all dogs positive
         if odds is not None and odds < 0 and str(team) != str(bet.get("home_team", "")):
             return False
+        # Coors inflates home win prob same as totals — model generates EV 100%+ errors
+        if "colorado" in str(bet.get("home_team", "")).lower():
+            return False
         return True
 
     if market in ("RL", "F5 RL"):
