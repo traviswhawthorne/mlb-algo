@@ -181,25 +181,10 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
         return {"High": conf_high_fmt, "Medium": conf_med_fmt}.get(tier, conf_low_fmt)
 
     def _is_priority(bet):
-        ev     = bet.get("ev", 0)
-        odds   = bet.get("book_odds")
-        prob   = bet.get("model_prob", 0)
-        market = bet.get("market", "")
-        team   = bet.get("team", "")
-        if prob < 0.60:                       return False
-        if ev < 0.05:                         return False
-        if odds is not None and odds <= -200: return False
-        if market in ("Total", "F5 Total") and not str(team).startswith("Over"):
-            return False
-        return True
+        return bool(bet.get("priority", False))
 
     def _is_fade(bet, game):
-        if _is_priority(bet):                                 return False
-        if bet.get("market") not in ("Total", "F5 Total"):   return False
-        if not str(bet.get("team", "")).startswith("Over"):  return False
-        tot = game.get("book_total_line")
-        if tot is None:                                       return False
-        return 9.0 <= tot <= 10.5
+        return bool(bet.get("fade", False))
 
     status_ok_fmt = wb.add_format({
         "bg_color": "#c6efce", "border": 1, "align": "left",
@@ -295,14 +280,15 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
 
     row = 2
     sorted_picks = sorted(picks, key=_game_time_key)
-    bet_games  = [g for g in sorted_picks if g.get("bets")]
-    idle_games = [g for g in sorted_picks if not g.get("bets")]
+    bet_games  = [g for g in sorted_picks if any(b.get("priority") for b in g.get("bets", []))]
+    idle_games = [g for g in sorted_picks if not any(b.get("priority") for b in g.get("bets", []))]
 
-    # Flatten all bets across all games, sort by game time
+    # Flatten priority bets only across all games, sort by game time
     all_bets_flat = []
     for game in bet_games:
         for bet in game["bets"]:
-            all_bets_flat.append((game, bet))
+            if _is_priority(bet):
+                all_bets_flat.append((game, bet))
     all_bets_flat.sort(key=lambda x: _game_time_key(x[0]))
 
     # Sort priority bets first, fade bets last within each time slot
@@ -513,7 +499,7 @@ def write_picks_to_excel(picks, output_file="MLB_Picks.xlsx", games_date=None):
 
     tr = 2
     for game in bet_games:
-        for bet in game["bets"]:
+        for bet in [b for b in game["bets"] if b.get("priority")]:
             pick_label = f"{bet['team']}  {bet['bet_type_label']}".rstrip()
             key = (str(game["matchup"]).strip(), str(bet["market"]).strip(), pick_label.strip())
             saved = existing_actuals.get(key, {})

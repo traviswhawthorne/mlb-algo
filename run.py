@@ -1217,34 +1217,29 @@ def main():
             b["priority"] = _is_priority_bet(b)
             b["fade"]     = _is_fade_bet(b, tot_line)
 
-        # Print any flagged bets
-        if bets:
-            priority_bets = [b for b in bets if b["priority"]]
-            fade_bets     = [b for b in bets if b["fade"]]
-            header = f"    >>> {len(bets)} BET(S) FLAGGED"
-            if priority_bets:
-                header += f"  |  {len(priority_bets)} PRIORITY ★"
+        # Print priority bets only
+        priority_bets = [b for b in bets if b["priority"]]
+        fade_bets     = [b for b in bets if b["fade"]]
+        if priority_bets:
+            header = f"    >>> {len(priority_bets)} PRIORITY BET(S)"
             if fade_bets:
                 header += f"  |  {len(fade_bets)} FADE WATCH ⚠"
             print(header + ":")
-            for bet in bets:
+            for bet in priority_bets:
                 bet_desc = f"{bet['team']}  {bet['bet_type_label']}".rstrip()
-                # Market disagreement check: warn when model and book implied prob
-                # diverge by 30+ percentage points — likely a bad input driving the edge
                 from ev_calculator import american_to_decimal
                 book_imp = round(1.0 / american_to_decimal(bet["book_odds"]), 3)
                 disagreement = abs(bet["model_prob"] - book_imp)
                 flag = "  *** SANITY CHECK: model vs market gap >{:.0f}pp — verify inputs".format(
                     disagreement * 100) if disagreement >= 0.30 else ""
-                priority_tag = "  ★ PRIORITY" if bet["priority"] else ""
-                fade_tag     = "  ⚠ FADE WATCH" if bet["fade"] else ""
+                fade_tag = "  ⚠ FADE WATCH" if bet["fade"] else ""
                 print(f"        {bet_desc}"
                       f"  @  {bet['book_odds']:+d}"
                       f"  |  EV: {bet['ev_pct']}"
                       f"  |  Bet: ${bet['bet_amount']:.2f}"
-                      f"{flag}{priority_tag}{fade_tag}")
+                      f"{flag}{fade_tag}")
         else:
-            print(f"    No +EV bets found (home prob: {home_prob:.1%})")
+            print(f"    No priority bets (home prob: {home_prob:.1%})")
         print()
 
         # Data quality tier — measures ERA estimate reliability based on starter IP.
@@ -1424,12 +1419,12 @@ def main():
     print("Writing picks to Excel ...")
     out = write_picks_to_excel(picks_data["games"], config.OUTPUT_FILE, games_date)
 
-    total_bets   = sum(len(g["bets"]) for g in analyzed)
-    total_stake  = sum(b["bet_amount"] for g in analyzed for b in g["bets"])
+    total_bets   = sum(1 for g in analyzed for b in g["bets"] if b.get("priority"))
+    total_stake  = sum(b["bet_amount"] for g in analyzed for b in g["bets"] if b.get("priority"))
 
     print()
     print("=" * 62)
-    print(f"  DONE — {total_bets} bet(s) recommended today")
+    print(f"  DONE — {total_bets} priority bet(s) today")
     if total_bets > 0:
         print(f"  Total stake:  ${total_stake:.2f}")
     print(f"  File:  {os.path.abspath(out)}")
