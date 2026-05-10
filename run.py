@@ -75,7 +75,8 @@ from name_matcher    import (find_pitcher_stats, find_team_wrc_plus,
                               find_pitcher_hand, find_team_split_wrc,
                               find_pitcher_split_era, find_team_k_rate,
                               get_lineup_hand_pct, get_platoon_flag,
-                              find_pitcher_ha_era, match_odds_game)
+                              find_pitcher_ha_era, match_odds_game,
+                              _normalize)
 from output          import write_picks_to_excel
 
 
@@ -129,7 +130,7 @@ def _quality_bp_adj(unavail_list, team_bp_era, pitchers_df, decay,
         if pitchers_df is not None and not pitchers_df.empty:
             match = pitchers_df[
                 (pitchers_df["GS"] == 0) &
-                (pitchers_df["Name"].str.lower() == arm_name.lower())
+                (pitchers_df["Name"].apply(_normalize) == _normalize(arm_name))
             ]
             if not match.empty:
                 arm_era = float(match.iloc[0]["ERA"])

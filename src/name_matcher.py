@@ -6,6 +6,7 @@ Matches player/team names between MLB Stats API and FanGraphs.
 The two data sources use slightly different name formats, so we do
 fuzzy matching to find the right row in the stats data.
 """
+import unicodedata
 
 
 # ---- Full team name -> FanGraphs abbreviation ----
@@ -50,10 +51,11 @@ FALLBACK_WRC_PLUS = 100
 
 
 def _normalize(name):
-    """Lowercase, strip whitespace and common suffixes."""
+    """Lowercase, strip accents, strip whitespace and common suffixes."""
     if not name:
         return ""
-    n = str(name).lower().strip()
+    n = unicodedata.normalize("NFD", str(name).lower().strip())
+    n = "".join(c for c in n if unicodedata.category(c) != "Mn")
     for suf in [" jr.", " sr.", " ii", " iii", " iv", "."]:
         n = n.replace(suf, "")
     return n.strip()
