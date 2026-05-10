@@ -403,6 +403,9 @@ def _is_priority_bet(bet):
         if ev < 0.08:                          return False
         if odds is not None and odds <= -200:  return False
         if odds is not None and odds >= 150:   return False
+        # Road favorites: -4.9% ROI (225 bets) vs home fav +9.2%, all dogs positive
+        if odds is not None and odds < 0 and str(team) != str(bet.get("home_team", "")):
+            return False
         return True
 
     if market in ("RL", "F5 RL"):
@@ -414,6 +417,7 @@ def _is_priority_bet(bet):
     if market in ("Total", "F5 Total"):
         if ev < 0.10:                          return False
         if odds is not None and odds <= -200:  return False
+        if "colorado" in str(bet.get("home_team", "")).lower():  return False
         return True
 
     return False
