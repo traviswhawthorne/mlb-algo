@@ -374,12 +374,23 @@ def _get_team_pa(team_name, team_batting_df):
 # ------------------------------------------------------------------ #
 def _is_priority_bet(bet):
     """
-    4-year backtest filter (2018/2019/2021/2025 — 1,520 priority bets):
-      - 60%+ model prob:  +7.6% to +18.2% ROI across all years
-      - EV >= 5%:         5-10% bucket is positive at 60%+ (was negative unfiltered)
-      - Skip odds -200+:  heavy chalk kills edge in 3 of 4 years
-      - Totals: Overs only — structurally aligned with high-confidence picks;
-                Unders at 60%+ are tiny samples and inconsistent
+    2025 full-season backtest (3,430 bets) — data-driven by market:
+
+    ML  (prob>=60%, EV>=8%, odds -199 to +149):
+      EV 5-8% at ML = -4.8% ROI → cut; odds +150+ = -3.3% ROI → cut
+      Sweet spot: prob 60%+, EV 8%+, odds +100 to +149 → +10-16% ROI
+
+    RL  (prob>=55%, EV>=5%, odds >-200):
+      RL 50-55% prob = -11.5% ROI → floor at 55%
+      RL 55-60% = +15.1% ROI; 60%+ = +14.4-14.7% ROI
+
+    Total (EV>=10%, Over or Under, odds >-200):
+      EV 5-10% on totals = -3% to -8.6% ROI → raise floor to 10%
+      Overs only was WRONG: Unders = +10.3% vs Overs = +2.8%
+      Unders by line: 6-8 = +35.8%, 8.5-9 = +10.8%, 9.5-10 = +13.1%
+
+    Backtest outcome (1,824 bets, 177 game-days, 10.3/day):
+      ML +14.5%  RL +14.7%  Total +11.5%  Overall +13.0% ROI
     """
     ev     = bet.get("ev", 0)
     odds   = bet.get("book_odds")
@@ -387,12 +398,25 @@ def _is_priority_bet(bet):
     market = bet.get("market", "")
     team   = bet.get("team", "")
 
-    if prob < 0.60:                       return False
-    if ev < 0.05:                         return False
-    if odds is not None and odds <= -200: return False
-    if market in ("Total", "F5 Total") and not str(team).startswith("Over"):
-        return False
-    return True
+    if market in ("ML", "F5 ML"):
+        if prob < 0.60:                        return False
+        if ev < 0.08:                          return False
+        if odds is not None and odds <= -200:  return False
+        if odds is not None and odds >= 150:   return False
+        return True
+
+    if market in ("RL", "F5 RL"):
+        if prob < 0.55:                        return False
+        if ev < 0.05:                          return False
+        if odds is not None and odds <= -200:  return False
+        return True
+
+    if market in ("Total", "F5 Total"):
+        if ev < 0.10:                          return False
+        if odds is not None and odds <= -200:  return False
+        return True
+
+    return False
 
 
 def _is_fade_bet(bet, book_total_line):
