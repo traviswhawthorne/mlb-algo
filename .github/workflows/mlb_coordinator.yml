@@ -1,11 +1,7 @@
 name: MLB Coordinator
 
 on:
-  schedule:
-    - cron: '50 15 * * *'         # 8:50 AM PT early start
-    - cron: '0,20,40 16-23 * * *' # 9 AM–4 PM PT every 20 min
-    - cron: '0,20,40 0-3 * * *'   # 5 PM–8 PM PT for late west coast games
-  workflow_dispatch:    # allow manual trigger for testing
+  workflow_dispatch:    # manual trigger only
 
 permissions:
   contents: write       # needed so coordinator can commit state back to the repo
