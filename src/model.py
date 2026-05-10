@@ -208,18 +208,18 @@ def get_team_venue_factor(team_name, home_team):
 # 2026 early-season update (95 bets, Apr 18–24):
 #   65–70% range: model avg 67.6%, actual win rate 45%  → aggressively corrected
 #   70%+  range: model avg 75.7%, actual win rate 52%  → corrected toward 55%
-#   ERA_INPUT_CAP (7.0) reduces extreme inputs driving the highest raw probs,
-#   so the upper tail correction is less severe than raw data alone suggests.
-_CAL_RAW = np.array([0.00, 0.50, 0.525, 0.575, 0.625, 0.675, 0.725, 1.00])
-_CAL_ADJ = np.array([0.00, 0.50, 0.540, 0.612, 0.615, 0.630, 0.650, 1.00])
+# 2025 full-season point-in-time backtest (2,367 games, Apr–Sep, clean data):
+#   50–55%: model avg 52.6%, actual 50.7%  → slight overconfidence, pull down
+#   55–60%: model avg 57.5%, actual 53.9%  → meaningful overconfidence, pull down
+#   60–65%: model avg 61.5%, actual 63.6%  → underconfident, push up
+#   65%+:   n=5 only — no reliable data; hold near identity
+_CAL_RAW = np.array([0.00, 0.50, 0.526, 0.575, 0.615, 0.700, 1.00])
+_CAL_ADJ = np.array([0.00, 0.50, 0.507, 0.539, 0.636, 0.700, 1.00])
 
 
 def calibrate_probability(p):
     """
     Apply backtest-derived calibration to a raw model win probability.
-
-    The wRC+ model is slightly underconfident at 50-60% and well-calibrated at 60-65%.
-    This maps raw probabilities to observed win rates using piecewise interpolation.
 
     Symmetry is preserved: calibrate(p) + calibrate(1-p) == 1.0
     """
@@ -466,6 +466,9 @@ def calculate_f5_probability(home_wrc_plus, away_wrc_plus,
         away_wrc_plus, home_pitcher_era_est, home_bullpen_era,
         home_starter_ip, weather_factor * home_defense_factor, is_home=False
     )
+
+    home_f5_exp += RUN_CALIBRATION_OFFSET
+    away_f5_exp += RUN_CALIBRATION_OFFSET
 
     home_prob = win_probability_poisson(home_f5_exp, away_f5_exp)
     home_prob = min(max(home_prob, 0.05), 0.95)

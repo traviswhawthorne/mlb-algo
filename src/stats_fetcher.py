@@ -1101,6 +1101,65 @@ def get_pitcher_recent_starts_ip(season, days=30):
     return result
 
 
+def get_pitcher_starts_only_ip(season):
+    """
+    Fetch each pitcher's IP from games where they were the starter using the
+    'sp' (Starter) sitCode split.  Unlike the season aggregate endpoint, this
+    isolates starts-only innings and eliminates the dual-role bug where a
+    pitcher with 1 start but 20 relief innings would produce 21 IP / 1 GS = 21.
+
+    Returns {pitcher_name: {"ip": float, "gs": int}}.
+    """
+    cache_file = os.path.join(CACHE_DIR, f"pitcher_starts_ip_{season}_{date.today()}.json")
+    if os.path.exists(cache_file):
+        with open(cache_file) as f:
+            cached = json.load(f)
+        if cached:
+            return cached
+        os.remove(cache_file)
+
+    print(f"  Downloading pitcher starts-only IP ({season}) from MLB Stats API ...")
+
+    url = f"{MLB_API}/stats"
+    params = {
+        "stats":      "statSplits",
+        "group":      "pitching",
+        "season":     season,
+        "playerPool": "all",
+        "sportId":    1,
+        "gameType":   "R",
+        "sitCodes":   "sp",
+        "limit":      2000,
+    }
+
+    try:
+        resp = requests.get(url, params=params, timeout=20)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        print(f"  WARNING: Pitcher starts-only IP fetch failed ({season}) — {e}")
+        return {}
+
+    result = {}
+    for group in data.get("stats", []):
+        all_splits = group.get("splits", []) + group.get("splitsTiedWithLimit", [])
+        for split in all_splits:
+            name = split.get("player", {}).get("fullName", "")
+            s    = split.get("stat", {})
+            if not name:
+                continue
+            ip = _parse_ip(str(s.get("inningsPitched", "0.0")))
+            gs = int(s.get("gamesStarted", 0))
+            if ip > 0 and gs >= 1:
+                result[name] = {"ip": round(ip, 1), "gs": gs}
+
+    with open(cache_file, "w") as f:
+        json.dump(result, f)
+
+    print(f"  Starts-only IP loaded for {len(result)} starters ({season})")
+    return result
+
+
 def get_team_recent_form(season, days=30):
     """
     Pull team batting stats for the last {days} days.

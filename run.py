@@ -58,6 +58,7 @@ from stats_fetcher   import (get_pitcher_stats, get_team_batting_stats,
                               get_rest_days, get_bullpen_usage,
                               get_pitcher_recent_form, get_team_recent_form,
                               get_pitcher_recent_starts_ip,
+                              get_pitcher_starts_only_ip,
                               get_team_defensive_stats,
                               get_pitcher_velocity_trends)
 from games_fetcher   import get_todays_games
@@ -261,16 +262,20 @@ def _rebuild_era_est(pitchers_df, prior_pitchers_df):
     return updated
 
 
-def _pitcher_ip_per_start(df):
-    """Return {name: avg_ip_per_start} for all pitchers with at least 1 GS."""
-    if df is None or df.empty:
-        return {}
+def _pitcher_ip_per_start(starts_only_dict):
+    """
+    Return {name: avg_ip_per_start} from starts-only IP data fetched via sitCodes=sp.
+
+    The old approach (total_season_IP / GS) was broken for dual-role pitchers:
+    a reliever with 1 spot start and 20 relief innings produced 21 IP/start.
+    The new source isolates IP earned specifically in starting appearances.
+    """
     result = {}
-    for _, row in df.iterrows():
-        gs = int(row.get("GS", 0) or 0)
-        ip = float(row.get("IP", 0) or 0)
+    for name, data in (starts_only_dict or {}).items():
+        gs = data.get("gs", 0)
+        ip = data.get("ip", 0.0)
         if gs >= 1 and ip > 0:
-            result[str(row["Name"])] = ip / gs
+            result[name] = round(ip / gs, 3)
     return result
 
 
@@ -473,9 +478,11 @@ def main():
         pitcher_ha_dict = _blend_pitcher_ha(
             pitcher_ha_dict, prior_pitcher_ha_dict, pitchers_df
         )
+        starts_only_ip_current = get_pitcher_starts_only_ip(config.SEASON)
+        starts_only_ip_prior   = get_pitcher_starts_only_ip(config.SEASON - 1)
         ip_per_start_dict = _blend_ip_per_start(
-            _pitcher_ip_per_start(pitchers_df),
-            _pitcher_ip_per_start(prior_pitchers_df),
+            _pitcher_ip_per_start(starts_only_ip_current),
+            _pitcher_ip_per_start(starts_only_ip_prior),
             pitchers_df,
         )
         # Rebuild ERA_est: replace league-avg FIP regression with player-specific 2025 prior
@@ -634,27 +641,35 @@ def main():
         # Deviation guard: applied LAST so it can't be overwritten by prior/recent blending.
         # Uses percentage thresholds (asymmetric) because ERA scale is non-linear —
         # outperformance approaches 0 so a 15% drop is more meaningful than a 25% rise.
+        #
+        # Max weight is scaled by IP sample size so tiny-sample actual ERAs (e.g. 11.12
+        # in 5.7 IP) don't override the prior-year regression. At 40+ IP the guard runs
+        # at full strength (70% max pull); at 5 IP it reaches at most ~9%.
         DEVIATION_OVER_THRESHOLD  = 0.15   # actual is 15%+ below estimate (outperforming)
         DEVIATION_UNDER_THRESHOLD = 0.25   # actual is 25%+ above estimate (underperforming)
         DEVIATION_MAX_WEIGHT      = 0.70
-        def _deviation_blend(era_est, actual_era):
+        DEVIATION_FULL_IP         = 40.0   # IP at which guard runs at full strength
+        def _deviation_blend(era_est, actual_era, ip_innings):
             if actual_era is None or era_est == 0:
+                return era_est
+            sample_scale = min(ip_innings / DEVIATION_FULL_IP, 1.0)
+            if sample_scale < 0.01:
                 return era_est
             pct_diff = (actual_era - era_est) / era_est
             if pct_diff < 0 and abs(pct_diff) > DEVIATION_OVER_THRESHOLD:
                 # outperforming — pull toward actual
                 excess = abs(pct_diff) - DEVIATION_OVER_THRESHOLD
-                w = min(excess / 0.20, 1.0) * DEVIATION_MAX_WEIGHT
+                w = min(excess / 0.20, 1.0) * DEVIATION_MAX_WEIGHT * sample_scale
             elif pct_diff > 0 and pct_diff > DEVIATION_UNDER_THRESHOLD:
                 # underperforming — pull toward actual
                 excess = pct_diff - DEVIATION_UNDER_THRESHOLD
-                w = min(excess / 0.30, 1.0) * DEVIATION_MAX_WEIGHT
+                w = min(excess / 0.30, 1.0) * DEVIATION_MAX_WEIGHT * sample_scale
             else:
                 return era_est
             return round(era_est * (1 - w) + actual_era * w, 2)
 
-        away_era = _deviation_blend(away_era, away_actual_era)
-        home_era = _deviation_blend(home_era, home_actual_era)
+        away_era = _deviation_blend(away_era, away_actual_era, away_ip)
+        home_era = _deviation_blend(home_era, home_actual_era, home_ip)
 
         # Velocity adjustment — +0.20 ERA per mph lost vs prior season, capped at ±0.40.
         # Only fires when delta >= 0.5 mph (below that is day-to-day noise).
