@@ -69,8 +69,10 @@ def get_todays_games(game_date=None):
             away_prob = teams.get("away", {}).get("probablePitcher")
             home_prob = teams.get("home", {}).get("probablePitcher")
 
-            away_pitcher = away_prob.get("fullName") if away_prob else None
-            home_pitcher = home_prob.get("fullName") if home_prob else None
+            away_pitcher    = away_prob.get("fullName") if away_prob else None
+            home_pitcher    = home_prob.get("fullName") if home_prob else None
+            away_pitcher_id = away_prob.get("id")      if away_prob else None
+            home_pitcher_id = home_prob.get("id")      if home_prob else None
 
             game_time    = game.get("gameDate", "")
             game_number  = game.get("gameNumber", 1)
@@ -99,16 +101,18 @@ def get_todays_games(game_date=None):
                     pass
 
             games.append({
-                "game_pk":         game.get("gamePk"),
-                "game_time":       game_time,
-                "away_team":       away_team,
-                "home_team":       home_team,
-                "away_pitcher":    away_pitcher,
-                "home_pitcher":    home_pitcher,
-                "venue":           venue,
-                "away_lineup_ids": away_lineup_ids,
-                "home_lineup_ids": home_lineup_ids,
-                "officials":       game.get("officials", []),
+                "game_pk":          game.get("gamePk"),
+                "game_time":        game_time,
+                "away_team":        away_team,
+                "home_team":        home_team,
+                "away_pitcher":     away_pitcher,
+                "home_pitcher":     home_pitcher,
+                "away_pitcher_id":  away_pitcher_id,
+                "home_pitcher_id":  home_pitcher_id,
+                "venue":            venue,
+                "away_lineup_ids":  away_lineup_ids,
+                "home_lineup_ids":  home_lineup_ids,
+                "officials":        game.get("officials", []),
             })
 
     return games

@@ -128,6 +128,7 @@ def get_pitcher_stats(season):
         bb  = int(s.get("baseOnBalls", 0))
         hr  = int(s.get("homeRuns", 0))
         hbp = int(s.get("hitBatsmen", 0))
+        h   = int(s.get("hits", 0))
         bf  = int(s.get("battersFaced", 0))
         era_str = str(s.get("era", "4.50"))
         gs  = int(s.get("gamesStarted", 0))
@@ -144,6 +145,12 @@ def get_pitcher_stats(season):
         k_pct  = round(k  / bf, 4) if bf > 0 else 0.20
         bb_pct = round(bb / bf, 4) if bf > 0 else 0.08
 
+        # H/9: regress toward league average (8.8) at same rate as FIP
+        _LG_H9  = 8.8
+        _h9_raw = (h / ip * 9.0) if ip > 0 else _LG_H9
+        _h9_w   = min(ip / 60.0, 1.0)
+        h9      = round(_h9_raw * _h9_w + _LG_H9 * (1.0 - _h9_w), 2)
+
         rows.append({
             "Name":   name,
             "Team":   team,
@@ -152,6 +159,7 @@ def get_pitcher_stats(season):
             "ERA":    era,
             "K%":     k_pct,
             "BB%":    bb_pct,
+            "H9":     h9,
             "_fip_num": fip_num,
             "_ip":      ip
         })
