@@ -372,7 +372,7 @@ def _get_team_pa(team_name, team_batting_df):
 
 
 # ------------------------------------------------------------------ #
-def _is_priority_bet(bet):
+def _is_priority_bet(bet, home_team=""):
     """
     2025 full-season backtest (3,430 bets) — data-driven by market:
 
@@ -398,20 +398,20 @@ def _is_priority_bet(bet):
     market = bet.get("market", "")
     team   = bet.get("team", "")
 
-    if market in ("ML", "F5 ML"):
+    if market in ("Moneyline", "F5 Moneyline"):
         if prob < 0.60:                        return False
         if ev < 0.08:                          return False
         if odds is not None and odds <= -200:  return False
         if odds is not None and odds >= 150:   return False
         # Road favorites: -4.9% ROI (225 bets) vs home fav +9.2%, all dogs positive
-        if odds is not None and odds < 0 and str(team) != str(bet.get("home_team", "")):
+        if odds is not None and odds < 0 and str(team) != str(home_team):
             return False
         # Coors inflates home win prob same as totals — model generates EV 100%+ errors
-        if "colorado" in str(bet.get("home_team", "")).lower():
+        if "colorado" in str(home_team).lower():
             return False
         return True
 
-    if market in ("RL", "F5 RL"):
+    if market in ("Run Line", "F5 Run Line"):
         if prob < 0.55:                        return False
         if ev < 0.05:                          return False
         if odds is not None and odds <= -200:  return False
@@ -420,7 +420,7 @@ def _is_priority_bet(bet):
     if market in ("Total", "F5 Total"):
         if ev < 0.10:                          return False
         if odds is not None and odds <= -200:  return False
-        if "colorado" in str(bet.get("home_team", "")).lower():  return False
+        if "colorado" in str(home_team).lower():  return False
         return True
 
     return False
@@ -1192,7 +1192,7 @@ def main():
 
         # Mark priority and fade bets (backtest-optimized filters)
         for b in bets:
-            b["priority"] = _is_priority_bet(b)
+            b["priority"] = _is_priority_bet(b, home_team)
 
         # Print priority bets only
         priority_bets = [b for b in bets if b["priority"]]
