@@ -455,13 +455,17 @@ def main():
     is_manual = os.environ.get("TRIGGER_EVENT") == "workflow_dispatch"
     trigger_window = timedelta(minutes=90) if is_manual else timedelta(minutes=45)
 
+    # Manual trigger with no picks yet today: catch all games not yet started,
+    # regardless of how far out they are.
+    manual_catch_all = is_manual and not state["picks_runs"]
+
     upcoming_trigger = [
         g for g in games
         if (
             # New game: not yet covered and within trigger window before start
             (g["game_pk"] not in covered_pks
              and _game_start_utc(g) > now
-             and _game_start_utc(g) - now <= trigger_window)
+             and (manual_catch_all or _game_start_utc(g) - now <= trigger_window))
             or
             # Incomplete game: re-run up to 30 min past scheduled start (covers Pre-Game/Warmup)
             (g["game_pk"] in incomplete_pks
