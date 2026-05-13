@@ -442,6 +442,25 @@ def _et_time(utc_str):
 
 
 # ------------------------------------------------------------------ #
+def _git_commit_picks(picks_file):
+    """Commit and push the picks JSON when running locally (not in CI)."""
+    try:
+        subprocess.run(["git", "add", picks_file], check=True, capture_output=True)
+        result = subprocess.run(
+            ["git", "commit", "-m", f"picks: local run {picks_file}"],
+            capture_output=True, text=True
+        )
+        if result.returncode == 0:
+            subprocess.run(["git", "push"], check=True, capture_output=True)
+            print(f"  Git: committed and pushed {picks_file}")
+        elif "nothing to commit" in (result.stdout + result.stderr):
+            print("  Git: picks file unchanged, nothing to commit.")
+        else:
+            print(f"  Git: commit failed — {result.stderr.strip()}")
+    except Exception as e:
+        print(f"  Git: auto-commit skipped ({e})")
+
+
 def main():
     from datetime import date
 
@@ -1378,6 +1397,9 @@ def main():
     with open(picks_file, "w") as f:
         json.dump(picks_data, f, indent=2)
     print(f"Picks saved to {picks_file}")
+
+    if not os.environ.get("CI"):
+        _git_commit_picks(picks_file)
 
     # Push picks to web (traviswhawthorne.net/mlb)
     try:
