@@ -44,6 +44,34 @@ def load_state():
     if os.path.exists(path):
         with open(path) as f:
             return json.load(f)
+
+    # No state file — check if a picks file already exists (e.g. run locally earlier
+    # and committed, or a previous coordinator run that lost its state file).
+    picks_file = os.path.join(DATA_DIR, f"picks_{_today()}.json")
+    if os.path.exists(picks_file):
+        try:
+            with open(picks_file) as f:
+                picks = json.load(f)
+            all_pks = [g["game_pk"] for g in picks.get("games", [])]
+            incomplete = [
+                g["game_pk"] for g in picks.get("games", [])
+                if g.get("away_pitcher") in (None, "TBD")
+                or g.get("home_pitcher") in (None, "TBD")
+                or g.get("away_lineup_count", 0) < 8
+                or g.get("home_lineup_count", 0) < 8
+            ]
+            print(f"[coord] Inferred state from existing picks file "
+                  f"({len(all_pks)} game(s), {len(incomplete)} incomplete).")
+            return {
+                "date": _today(),
+                "picks_runs": [{"ran_at": "inferred", "game_pks": all_pks}],
+                "incomplete_at_run": incomplete,
+                "results_done": False,
+                "tracker_done": False,
+            }
+        except Exception as e:
+            print(f"[coord] Could not infer state from picks file: {e}")
+
     return {
         "date": _today(),
         "picks_runs": [],
