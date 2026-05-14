@@ -322,7 +322,7 @@ def _build_results_email(picks_date):
             if not score:
                 continue
             matchup = f"{_short_team(game['away_team'])} @ {_short_team(game['home_team'])}"
-            for bet in game.get("bets", []):
+            for bet in [b for b in game.get("bets", []) if b.get("priority")]:
                 margin, result = get_margin_and_result(
                     bet, game["away_team"], score["away_score"], score["home_score"])
                 if result in ("WIN", "LOSS", "PUSH"):
