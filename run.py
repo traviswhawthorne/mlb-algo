@@ -379,15 +379,23 @@ def _is_priority_bet(bet, home_team=""):
     ML  (prob>=60%, EV>=8%, odds -199 to +149):
       EV 5-8% at ML = -4.8% ROI → cut; odds +150+ = -3.3% ROI → cut
       Sweet spot: prob 60%+, EV 8%+, odds +100 to +149 → +10-16% ROI
+      Road favs allowed if odds <= -130 (heavy favs: +21-51% ROI 3/4 yrs)
+      Road favs at -129 to -100 inconsistent (2021 -18.6%) → excluded
 
-    RL  (prob>=55%, EV>=5%, odds >-200):
-      RL 50-55% prob = -11.5% ROI → floor at 55%
-      RL 55-60% = +15.1% ROI; 60%+ = +14.4-14.7% ROI
+    RL +1.5 (prob>=55% home / prob>=60% away, EV>=5%, odds >-200):
+      55-60% home → +6-21% ROI all 4 years; away → -14% to -1% all 4 years
+      60%+ is fine for both home and away
 
-    Total (EV>=10%, Over or Under, odds >-200):
-      EV 5-10% on totals = -3% to -8.6% ROI → raise floor to 10%
-      Overs only was WRONG: Unders = +10.3% vs Overs = +2.8%
-      Unders by line: 6-8 = +35.8%, 8.5-9 = +10.8%, 9.5-10 = +13.1%
+    RL -1.5 (EV>=5%, odds PK to +119):
+      4-year backtest 2018/2019/2021/2025 — odds bucket is the signal:
+        PK to +119 → +13-20% ROI every year (n=21-41/yr)  ← consistent
+        Prob bucket (40-45%) was 2-2 split across years — not reliable
+      Books pricing -1.5 near-even = genuine model disagreement worth taking
+
+    Total (EV>=22%, Over or Under, odds >-200):
+      4-year backtest 2018/2019/2021/2025 — only 22%+ bucket is consistent:
+        22%+  → +6.0%, +5.7%, -0.5%, +18.4% (3/4 positive, 4th near-flat)
+        10-22% → mostly negative across all 4 years → cut
 
     Backtest outcome (1,824 bets, 177 game-days, 10.3/day):
       ML +14.5%  RL +14.7%  Total +11.5%  Overall +13.0% ROI
@@ -397,14 +405,15 @@ def _is_priority_bet(bet, home_team=""):
     prob   = bet.get("model_prob", 0)
     market = bet.get("market", "")
     team   = bet.get("team", "")
+    label  = bet.get("bet_type_label", "")
 
     if market in ("Moneyline", "F5 Moneyline"):
         if prob < 0.60:                        return False
         if ev < 0.08:                          return False
         if odds is not None and odds <= -200:  return False
         if odds is not None and odds >= 150:   return False
-        # Road favorites: -4.9% ROI (225 bets) vs home fav +9.2%, all dogs positive
-        if odds is not None and odds < 0 and str(team) != str(home_team):
+        # Road favs at -129 to -100 inconsistent (2021 -18.6%); heavy road favs ok
+        if odds is not None and odds < 0 and odds >= -129 and str(team) != str(home_team):
             return False
         # Coors inflates home win prob same as totals — model generates EV 100%+ errors
         if "colorado" in str(home_team).lower():
@@ -412,13 +421,22 @@ def _is_priority_bet(bet, home_team=""):
         return True
 
     if market in ("Run Line", "F5 Run Line"):
-        if prob < 0.55:                        return False
-        if ev < 0.05:                          return False
-        if odds is not None and odds <= -200:  return False
-        return True
+        if "-1.5" in label:
+            # Near-even spread odds = books unsure, model disagrees → consistent edge
+            if odds is None or odds < 0 or odds > 119: return False
+            if ev < 0.05:                               return False
+            return True
+        else:
+            # +1.5: 55-60% only valid for home teams; away needs 60%+
+            is_home = str(team) == str(home_team)
+            if prob < 0.55:                                    return False
+            if prob < 0.60 and not is_home:                    return False
+            if ev < 0.05:                                      return False
+            if odds is not None and odds <= -200:              return False
+            return True
 
     if market in ("Total", "F5 Total"):
-        if ev < 0.10:                          return False
+        if ev < 0.22:                          return False
         if odds is not None and odds <= -200:  return False
         if "colorado" in str(home_team).lower():  return False
         return True
@@ -1184,16 +1202,36 @@ def main():
             ml_away = ml_home = None
             tot_line = None
 
-        # Deduplicate: keep only highest-EV bet per team (avoid ML + runline overlap)
+        # Mark priority FIRST so dedup can preserve priority bets over higher-EV non-priority ones
+        for b in bets:
+            b["priority"] = _is_priority_bet(b, home_team)
+
+        # Deduplicate: keep only one bet per team. Priority beats non-priority regardless of EV;
+        # when both have the same priority status, keep the higher-EV bet.
         best_by_team = {}
         for bet in bets:
             team = bet["team"]
-            if team not in best_by_team or bet["ev"] > best_by_team[team]["ev"]:
+            if team not in best_by_team:
                 best_by_team[team] = bet
+            else:
+                cur = best_by_team[team]
+                cur_pri, new_pri = cur["priority"], bet["priority"]
+                if new_pri and not cur_pri:
+                    # Incoming is priority, current is not — always prefer priority
+                    print(f"    Dedup (same-team): dropped {team} {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']}) — keeping priority {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']})")
+                    best_by_team[team] = bet
+                elif cur_pri and not new_pri:
+                    # Current is priority, incoming is not — keep current
+                    print(f"    Dedup (same-team): dropped {team} {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']}) — keeping priority {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']})")
+                elif bet["ev"] > cur["ev"]:
+                    # Same priority status — keep higher EV
+                    print(f"    Dedup (same-team): dropped {team} {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']}) — keeping {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']})")
+                    best_by_team[team] = bet
         bets = list(best_by_team.values())
 
         # Cross-team hedge dedup: ML on one team + opponent +1.5 partially cancel each other
-        # (they win in opposite scenarios). Keep only the higher-EV of the two.
+        # (they win in opposite scenarios). Skip when the ML is a priority bet — a priority ML
+        # is a distinct signal and should not be killed by the opponent's +1.5.
         ml_bets      = {b["team"]: b for b in bets if b["market"] in ("Moneyline", "F5 Moneyline")}
         rl_plus_bets = {b["team"]: b for b in bets
                         if b["market"] in ("Run Line", "F5 Run Line")
@@ -1202,16 +1240,15 @@ def main():
             opp = home_team if ml_team == away_team else away_team
             if opp in rl_plus_bets:
                 rl_bet = rl_plus_bets[opp]
+                if ml_bet.get("priority"):
+                    # Priority ML survives — keep both
+                    continue
                 if ml_bet["ev"] >= rl_bet["ev"]:
                     bets = [b for b in bets if b is not rl_bet]
                     print(f"    Dedup (hedge): dropped {opp} +1.5 ({rl_bet['ev_pct']}) — keeping {ml_team} ML ({ml_bet['ev_pct']})")
                 else:
                     bets = [b for b in bets if b is not ml_bet]
                     print(f"    Dedup (hedge): dropped {ml_team} ML ({ml_bet['ev_pct']}) — keeping {opp} +1.5 ({rl_bet['ev_pct']})")
-
-        # Mark priority and fade bets (backtest-optimized filters)
-        for b in bets:
-            b["priority"] = _is_priority_bet(b, home_team)
 
         # Print priority bets only
         priority_bets = [b for b in bets if b["priority"]]
