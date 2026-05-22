@@ -839,8 +839,10 @@ def main():
         home_wrc = adjust_wrc_for_lineup(home_lineup_ids, home_wrc_base, batter_ops)
 
         # Build split-step label so we can see where each drop came from
-        away_breakdown = f"{away_team.split()[-1]}: {away_wrc_overall}→{away_wrc_base}(split)→{away_wrc}(lineup)"
-        home_breakdown = f"{home_team.split()[-1]}: {home_wrc_overall}→{home_wrc_base}(split)→{home_wrc}(lineup)"
+        away_lu = f"→{away_wrc}(lineup)" if away_lineup_ids else ""
+        home_lu = f"→{home_wrc}(lineup)" if home_lineup_ids else ""
+        away_breakdown = f"{away_team.split()[-1]}: {away_wrc_overall}→{away_wrc_base}(split){away_lu}"
+        home_breakdown = f"{home_team.split()[-1]}: {home_wrc_overall}→{home_wrc_base}(split){home_lu}"
         print(f"    wRC+: {away_team.split()[-1]} {away_wrc}  |  {home_team.split()[-1]} {home_wrc}  "
               f"(overall: {away_wrc_overall} / {home_wrc_overall})")
         print(f"    wRC+ breakdown: {away_breakdown} | {home_breakdown}")
@@ -1223,10 +1225,20 @@ def main():
                 elif cur_pri and not new_pri:
                     # Current is priority, incoming is not — keep current
                     print(f"    Dedup (same-team): dropped {team} {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']}) — keeping priority {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']})")
-                elif bet["ev"] > cur["ev"]:
-                    # Same priority status — keep higher EV
-                    print(f"    Dedup (same-team): dropped {team} {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']}) — keeping {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']})")
-                    best_by_team[team] = bet
+                else:
+                    # Both same priority — ML beats RL (more reliable edge per calibration data)
+                    ml_markets = ("Moneyline", "F5 Moneyline")
+                    cur_is_ml  = cur["market"] in ml_markets
+                    new_is_ml  = bet["market"] in ml_markets
+                    if new_is_ml and not cur_is_ml:
+                        print(f"    Dedup (same-team): dropped {team} {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']}) — keeping ML ({bet['ev_pct']})")
+                        best_by_team[team] = bet
+                    elif cur_is_ml and not new_is_ml:
+                        print(f"    Dedup (same-team): dropped {team} {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']}) — keeping ML ({cur['ev_pct']})")
+                    elif bet["ev"] > cur["ev"]:
+                        # Same market type — keep higher EV
+                        print(f"    Dedup (same-team): dropped {team} {cur['market']} {cur.get('bet_type_label','')} ({cur['ev_pct']}) — keeping {bet['market']} {bet.get('bet_type_label','')} ({bet['ev_pct']})")
+                        best_by_team[team] = bet
         bets = list(best_by_team.values())
 
         # Cross-team hedge dedup: ML on one team + opponent +1.5 partially cancel each other

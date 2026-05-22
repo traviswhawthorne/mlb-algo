@@ -121,7 +121,7 @@ def get_pitcher_stats(season):
         ip_str = str(s.get("inningsPitched", "0.0"))
         ip     = _parse_ip(ip_str)
 
-        if ip < 3.0:           # skip pitchers with almost no work
+        if ip <= 0:            # skip pitchers with no recorded work
             continue
 
         k   = int(s.get("strikeOuts", 0))

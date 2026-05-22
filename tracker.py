@@ -306,8 +306,8 @@ def _group_rows(all_bets, key):
 # ------------------------------------------------------------------ #
 
 def write_tracker(all_bets, output_file):
-    # Metrics only count bets the user actually placed
-    placed = [b for b in all_bets if b["bet_placed"]]
+    # Metrics only count priority bets the user actually placed
+    placed = [b for b in all_bets if b["bet_placed"] and b.get("priority")]
 
     wb = xlsxwriter.Workbook(output_file)
 
@@ -400,7 +400,7 @@ def write_tracker(all_bets, output_file):
     generated = datetime.now().strftime("%B %d, %Y  %I:%M %p")
     ws1.set_row(0, 28)
     ws1.merge_range("A1:T1",
-                    f"MLB ALL BETS LOG  —  Generated {generated}", title_fmt)
+                    f"MLB PRIORITY BETS LOG  —  Generated {generated}", title_fmt)
 
     headers = [
         "Date", "Time (PT)", "Matchup", "Market", "Pick",
@@ -423,10 +423,11 @@ def write_tracker(all_bets, output_file):
                                    "num_format": '+#,##0;-#,##0;0',
                                    "font_color": "#276221"})
 
-    # Sort: date ascending, time ascending within each date
-    done    = sorted([b for b in all_bets if b["result"] != "PENDING"],
+    # Sort: date ascending, time ascending within each date (priority bets only)
+    priority_all = [b for b in all_bets if b.get("priority")]
+    done    = sorted([b for b in priority_all if b["result"] != "PENDING"],
                      key=lambda b: (b["date"], b["game_time_et"]))
-    pending = sorted([b for b in all_bets if b["result"] == "PENDING"],
+    pending = sorted([b for b in priority_all if b["result"] == "PENDING"],
                      key=lambda b: (b["date"], b["game_time_et"]))
 
     skipped_fmt = wb.add_format({"border": 1, "align": "center",
@@ -1239,8 +1240,8 @@ def main():
             input("\nPress Enter to close...")
         return
 
-    placed  = [b for b in all_bets if b["bet_placed"]]
-    skipped = [b for b in all_bets if not b["bet_placed"]]
+    placed  = [b for b in all_bets if b["bet_placed"] and b.get("priority")]
+    skipped = [b for b in all_bets if not b["bet_placed"] or not b.get("priority")]
     done    = [b for b in placed if b["result"] != "PENDING"]
     pending = [b for b in placed if b["result"] == "PENDING"]
     s       = _stats(placed)
