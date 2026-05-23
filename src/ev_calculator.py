@@ -73,7 +73,7 @@ def analyze_bet(model_prob, american_odds, bankroll,
     """
     if american_odds is None or model_prob is None:
         return None
-    if abs(american_odds) > 300:   # filter data errors / extreme lines
+    if abs(american_odds) < 100 or abs(american_odds) > 300:   # valid American odds must be ≥100
         return None
 
     ev = calculate_ev(model_prob, american_odds)
