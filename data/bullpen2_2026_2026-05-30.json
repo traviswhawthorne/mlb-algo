@@ -1,0 +1,152 @@
+{
+  "Arizona Diamondbacks": {
+    "overall": 3.86,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Athletics": {
+    "overall": 4.18,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Atlanta Braves": {
+    "overall": 2.72,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Baltimore Orioles": {
+    "overall": 3.93,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Boston Red Sox": {
+    "overall": 4.16,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Chicago Cubs": {
+    "overall": 3.41,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Chicago White Sox": {
+    "overall": 5.09,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Cincinnati Reds": {
+    "overall": 4.86,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Cleveland Guardians": {
+    "overall": 3.52,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Colorado Rockies": {
+    "overall": 3.63,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Detroit Tigers": {
+    "overall": 4.68,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Houston Astros": {
+    "overall": 5.16,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Kansas City Royals": {
+    "overall": 4.73,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Los Angeles Angels": {
+    "overall": 5.19,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Los Angeles Dodgers": {
+    "overall": 2.94,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Miami Marlins": {
+    "overall": 3.67,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Milwaukee Brewers": {
+    "overall": 4.21,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Minnesota Twins": {
+    "overall": 5.09,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "New York Mets": {
+    "overall": 3.25,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "New York Yankees": {
+    "overall": 3.41,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Philadelphia Phillies": {
+    "overall": 3.81,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Pittsburgh Pirates": {
+    "overall": 4.23,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "San Diego Padres": {
+    "overall": 2.94,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "San Francisco Giants": {
+    "overall": 3.3,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Seattle Mariners": {
+    "overall": 2.92,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "St. Louis Cardinals": {
+    "overall": 4.27,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Tampa Bay Rays": {
+    "overall": 4.27,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Texas Rangers": {
+    "overall": 3.9,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Toronto Blue Jays": {
+    "overall": 3.91,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  },
+  "Washington Nationals": {
+    "overall": 4.43,
+    "vs_L": 4.25,
+    "vs_R": 4.25
+  }
+}
