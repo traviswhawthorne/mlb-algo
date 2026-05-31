@@ -1,0 +1,31 @@
+Team,TeamName,PA,R,wOBA,K_pct,wRC+
+,Los Angeles Dodgers,2181,302,0.3417,0.2022,123
+,Tampa Bay Rays,2115,257,0.3189,0.1877,105
+,Atlanta Braves,2246,311,0.3297,0.2075,114
+,Pittsburgh Pirates,2322,292,0.3219,0.2347,107
+,Arizona Diamondbacks,2090,261,0.313,0.2024,101
+,San Francisco Giants,2109,210,0.2963,0.2096,90
+,Athletics,2192,238,0.3143,0.2208,101
+,Houston Astros,2275,271,0.3192,0.211,107
+,Boston Red Sox,2154,222,0.3058,0.221,94
+,Washington Nationals,2303,320,0.3237,0.2136,109
+,Miami Marlins,2200,249,0.3065,0.22,96
+,Toronto Blue Jays,2202,239,0.3023,0.193,94
+,Milwaukee Brewers,2112,266,0.3061,0.2107,97
+,New York Yankees,2159,288,0.3351,0.2293,119
+,Colorado Rockies,2171,238,0.3039,0.2418,89
+,Chicago Cubs,2313,280,0.3194,0.2123,107
+,Chicago White Sox,2206,273,0.32,0.2412,107
+,St. Louis Cardinals,2129,242,0.3077,0.2104,99
+,Baltimore Orioles,2232,266,0.313,0.2375,102
+,Minnesota Twins,2243,272,0.3097,0.2305,99
+,Kansas City Royals,2158,218,0.2996,0.2136,90
+,Texas Rangers,2165,231,0.3062,0.2296,97
+,Seattle Mariners,2193,247,0.3118,0.2339,104
+,Cleveland Guardians,2241,245,0.3051,0.2004,96
+,Detroit Tigers,2211,222,0.3012,0.2293,93
+,Cincinnati Reds,2172,250,0.311,0.2417,98
+,Los Angeles Angels,2232,253,0.3086,0.2522,98
+,New York Mets,2154,229,0.2856,0.2145,83
+,Philadelphia Phillies,2121,225,0.296,0.2211,88
+,San Diego Padres,2079,225,0.2897,0.2318,86
