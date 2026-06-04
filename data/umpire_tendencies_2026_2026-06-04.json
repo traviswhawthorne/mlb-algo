@@ -1,0 +1,366 @@
+{
+  "Bill Miller": {
+    "run_factor": 1.0967,
+    "games": 13
+  },
+  "Adrian Johnson": {
+    "run_factor": 1.4339,
+    "games": 7
+  },
+  "Mark Wegner": {
+    "run_factor": 1.1025,
+    "games": 12
+  },
+  "Alan Porter": {
+    "run_factor": 0.9125,
+    "games": 11
+  },
+  "Laz Diaz": {
+    "run_factor": 0.922,
+    "games": 12
+  },
+  "Dan Iassogna": {
+    "run_factor": 0.9505,
+    "games": 12
+  },
+  "Chris Conroy": {
+    "run_factor": 1.0037,
+    "games": 10
+  },
+  "Alfonso M\u00e1rquez": {
+    "run_factor": 1.2028,
+    "games": 11
+  },
+  "Chris Guccione": {
+    "run_factor": 1.068,
+    "games": 11
+  },
+  "James Hoye": {
+    "run_factor": 1.017,
+    "games": 12
+  },
+  "Andy Fletcher": {
+    "run_factor": 1.356,
+    "games": 9
+  },
+  "Lance Barksdale": {
+    "run_factor": 0.9695,
+    "games": 12
+  },
+  "Chad Fairchild": {
+    "run_factor": 1.0265,
+    "games": 10
+  },
+  "Marvin Hudson": {
+    "run_factor": 0.6636,
+    "games": 11
+  },
+  "Jordan Baker": {
+    "run_factor": 0.9125,
+    "games": 12
+  },
+  "Doug Eddings": {
+    "run_factor": 1.2235,
+    "games": 11
+  },
+  "John Tumpane": {
+    "run_factor": 0.9388,
+    "games": 13
+  },
+  "Lance Barrett": {
+    "run_factor": 0.9613,
+    "games": 14
+  },
+  "Will Little": {
+    "run_factor": 1.123,
+    "games": 13
+  },
+  "Cory Blaser": {
+    "run_factor": 0.7477,
+    "games": 9
+  },
+  "David Rackley": {
+    "run_factor": 0.8949,
+    "games": 13
+  },
+  "Jim Wolf": {
+    "run_factor": 1.1152,
+    "games": 9
+  },
+  "Tripp Gibson": {
+    "run_factor": 0.998,
+    "games": 12
+  },
+  "Brian O'Nora": {
+    "run_factor": 1.1025,
+    "games": 9
+  },
+  "D.J. Reyburn": {
+    "run_factor": 0.9021,
+    "games": 11
+  },
+  "CB Bucknor": {
+    "run_factor": 1.1976,
+    "games": 2
+  },
+  "Quinn Wolcott": {
+    "run_factor": 0.9029,
+    "games": 12
+  },
+  "Rob Drake": {
+    "run_factor": 0.9505,
+    "games": 12
+  },
+  "Ben May": {
+    "run_factor": 1.1025,
+    "games": 12
+  },
+  "Bruce Dreckman": {
+    "run_factor": 0.9125,
+    "games": 12
+  },
+  "Mike Muchlinski": {
+    "run_factor": 1.036,
+    "games": 12
+  },
+  "Chad Whitson": {
+    "run_factor": 0.9467,
+    "games": 10
+  },
+  "Malachi Moore": {
+    "run_factor": 1.1055,
+    "games": 13
+  },
+  "Jansen Visconti": {
+    "run_factor": 0.8917,
+    "games": 11
+  },
+  "Ryan Additon": {
+    "run_factor": 1.0835,
+    "games": 12
+  },
+  "Chris Segal": {
+    "run_factor": 1.068,
+    "games": 11
+  },
+  "Sean Barber": {
+    "run_factor": 1.017,
+    "games": 12
+  },
+  "Gabe Morales": {
+    "run_factor": 0.8896,
+    "games": 10
+  },
+  "Ryan Blakney": {
+    "run_factor": 0.9021,
+    "games": 11
+  },
+  "Adam Beck": {
+    "run_factor": 1.0645,
+    "games": 12
+  },
+  "Ramon De Jesus": {
+    "run_factor": 1.055,
+    "games": 8
+  },
+  "Stu Scheurwater": {
+    "run_factor": 0.8269,
+    "games": 12
+  },
+  "Brennan Miller": {
+    "run_factor": 0.96,
+    "games": 12
+  },
+  "Carlos Torres": {
+    "run_factor": 0.998,
+    "games": 12
+  },
+  "Nestor Ceja": {
+    "run_factor": 0.9315,
+    "games": 12
+  },
+  "Roberto Ortiz": {
+    "run_factor": 1.1532,
+    "games": 9
+  },
+  "Ryan Wills": {
+    "run_factor": 0.7224,
+    "games": 12
+  },
+  "Alex Tosi": {
+    "run_factor": 0.7984,
+    "games": 12
+  },
+  "Ron Kulpa": {
+    "run_factor": 0.7756,
+    "games": 5
+  },
+  "Junior Valentine": {
+    "run_factor": 0.7477,
+    "games": 9
+  },
+  "Nick Mahrley": {
+    "run_factor": 1.2293,
+    "games": 9
+  },
+  "Emil Jimenez": {
+    "run_factor": 1.5208,
+    "games": 9
+  },
+  "Erich Bacchus": {
+    "run_factor": 1.2754,
+    "games": 11
+  },
+  "Dan Bellino": {
+    "run_factor": 1.0455,
+    "games": 12
+  },
+  "Charlie Ramos": {
+    "run_factor": 0.7984,
+    "games": 8
+  },
+  "Jeremie Rehak": {
+    "run_factor": 1.0493,
+    "games": 10
+  },
+  "Vic Carapazza": {
+    "run_factor": 1.0616,
+    "games": 13
+  },
+  "Nate Tomlinson": {
+    "run_factor": 1.074,
+    "games": 12
+  },
+  "Mike Estabrook": {
+    "run_factor": 0.979,
+    "games": 12
+  },
+  "Todd Tichenor": {
+    "run_factor": 0.9885,
+    "games": 12
+  },
+  "Paul Clemons": {
+    "run_factor": 0.9021,
+    "games": 11
+  },
+  "Scott Barry": {
+    "run_factor": 0.9021,
+    "games": 11
+  },
+  "Mark Ripperger": {
+    "run_factor": 0.8247,
+    "games": 13
+  },
+  "Hunter Wendelstedt": {
+    "run_factor": 0.922,
+    "games": 12
+  },
+  "Shane Livensparger": {
+    "run_factor": 1.0151,
+    "games": 10
+  },
+  "Manny Gonzalez": {
+    "run_factor": 1.0645,
+    "games": 12
+  },
+  "Nic Lentz": {
+    "run_factor": 0.8934,
+    "games": 12
+  },
+  "Adam Hamari": {
+    "run_factor": 0.979,
+    "games": 12
+  },
+  "Tom Hanahan": {
+    "run_factor": 1.1717,
+    "games": 11
+  },
+  "Clint Vondrak": {
+    "run_factor": 0.901,
+    "games": 10
+  },
+  "Dan Merzel": {
+    "run_factor": 0.9809,
+    "games": 10
+  },
+  "Edwin Moscoso": {
+    "run_factor": 0.9021,
+    "games": 11
+  },
+  "Willie Traynor": {
+    "run_factor": 1.379,
+    "games": 11
+  },
+  "James Jean": {
+    "run_factor": 1.0991,
+    "games": 11
+  },
+  "Edwin Jimenez": {
+    "run_factor": 0.9581,
+    "games": 5
+  },
+  "Brian Walsh": {
+    "run_factor": 1.0607,
+    "games": 10
+  },
+  "John Libka": {
+    "run_factor": 0.6325,
+    "games": 11
+  },
+  "Alex MacKay": {
+    "run_factor": 0.9809,
+    "games": 10
+  },
+  "Derek Thomas": {
+    "run_factor": 1.2673,
+    "games": 9
+  },
+  "Brock Ballou": {
+    "run_factor": 0.7984,
+    "games": 9
+  },
+  "Steven Jaschinski": {
+    "run_factor": 0.941,
+    "games": 4
+  },
+  "Dexter Kelley": {
+    "run_factor": 1.1406,
+    "games": 6
+  },
+  "Austin Jones": {
+    "run_factor": 0.9505,
+    "games": 9
+  },
+  "John Bacon": {
+    "run_factor": 0.9695,
+    "games": 8
+  },
+  "Jen Pawol": {
+    "run_factor": 1.5968,
+    "games": 5
+  },
+  "Tyler Jones": {
+    "run_factor": 0.9613,
+    "games": 7
+  },
+  "Felix Neon": {
+    "run_factor": 0.7984,
+    "games": 2
+  },
+  "Jacob Metz": {
+    "run_factor": 0.9353,
+    "games": 5
+  },
+  "Louie Krupa": {
+    "run_factor": 1.0455,
+    "games": 6
+  },
+  "Jonathan Parra": {
+    "run_factor": 0.8934,
+    "games": 6
+  },
+  "Dillon Wilson": {
+    "run_factor": 0.5133,
+    "games": 2
+  }
+}
