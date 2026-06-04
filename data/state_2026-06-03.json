@@ -59,6 +59,6 @@
   "incomplete_at_run": [
     823456
   ],
-  "results_done": false,
-  "tracker_done": false
+  "results_done": true,
+  "tracker_done": true
 }
