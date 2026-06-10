@@ -1,0 +1,494 @@
+{
+  "Seattle Mariners": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 75,
+    "relievers_used": 4,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Baltimore Orioles": {
+    "unavailable": [
+      [
+        "Albert Su\u00e1rez",
+        39
+      ]
+    ],
+    "questionable": [
+      [
+        "Anthony Nunez",
+        32
+      ]
+    ],
+    "era_adjustment": 0.07,
+    "status": "taxed",
+    "total_bp_pitches": 71,
+    "relievers_used": 2,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Boston Red Sox": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Danny Coulombe",
+        22
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 61,
+    "relievers_used": 4,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Tampa Bay Rays": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 63,
+    "relievers_used": 5,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "New York Yankees": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "David Bednar",
+        27
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 111,
+    "relievers_used": 7,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Cleveland Guardians": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Hunter Gaddis",
+        23
+      ],
+      [
+        "Cade Smith",
+        22
+      ]
+    ],
+    "era_adjustment": 0.1,
+    "status": "normal",
+    "total_bp_pitches": 89,
+    "relievers_used": 5,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Philadelphia Phillies": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 29,
+    "relievers_used": 2,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Toronto Blue Jays": {
+    "unavailable": [
+      [
+        "Simeon Woods Richardson",
+        48
+      ]
+    ],
+    "questionable": [],
+    "era_adjustment": 0.07,
+    "status": "taxed",
+    "total_bp_pitches": 78,
+    "relievers_used": 3,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Houston Astros": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Enyel De Los Santos",
+        25
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 57,
+    "relievers_used": 4,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Los Angeles Angels": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Ryan Zeferjahn",
+        25
+      ],
+      [
+        "Kirby Yates",
+        24
+      ]
+    ],
+    "era_adjustment": 0.1,
+    "status": "normal",
+    "total_bp_pitches": 82,
+    "relievers_used": 5,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Cincinnati Reds": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Zach McCambley",
+        32
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 45,
+    "relievers_used": 2,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "San Diego Padres": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 67,
+    "relievers_used": 4,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Washington Nationals": {
+    "unavailable": [
+      [
+        "Miles Mikolas",
+        54
+      ]
+    ],
+    "questionable": [
+      [
+        "Mitchell Parker",
+        26
+      ],
+      [
+        "Gus Varland",
+        22
+      ]
+    ],
+    "era_adjustment": 0.07,
+    "status": "taxed",
+    "total_bp_pitches": 118,
+    "relievers_used": 4,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "San Francisco Giants": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Keaton Winn",
+        22
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 25,
+    "relievers_used": 2,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Milwaukee Brewers": {
+    "unavailable": [
+      [
+        "Aaron Ashby",
+        36
+      ]
+    ],
+    "questionable": [
+      [
+        "Grant Anderson",
+        28
+      ],
+      [
+        "Drew Rom",
+        25
+      ]
+    ],
+    "era_adjustment": 0.07,
+    "status": "taxed",
+    "total_bp_pitches": 132,
+    "relievers_used": 6,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Athletics": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Hogan Harris",
+        35
+      ],
+      [
+        "Luis Medina",
+        29
+      ],
+      [
+        "Jos\u00e9 Suarez",
+        27
+      ],
+      [
+        "Mark Leiter Jr.",
+        23
+      ]
+    ],
+    "era_adjustment": 0.1,
+    "status": "normal",
+    "total_bp_pitches": 139,
+    "relievers_used": 6,
+    "days_since_game": 2,
+    "decay": 0.5
+  },
+  "Pittsburgh Pirates": {
+    "unavailable": [
+      [
+        "Bubba Chandler",
+        88
+      ]
+    ],
+    "questionable": [
+      [
+        "Evan Sisk",
+        26
+      ]
+    ],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 114,
+    "relievers_used": 2,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Atlanta Braves": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Reynaldo L\u00f3pez",
+        27
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 64,
+    "relievers_used": 3,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Chicago White Sox": {
+    "unavailable": [
+      [
+        "David Sandlin",
+        81
+      ]
+    ],
+    "questionable": [
+      [
+        "Trevor Richards",
+        27
+      ],
+      [
+        "Bryan Hudson",
+        25
+      ],
+      [
+        "Tyler Davis",
+        21
+      ]
+    ],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 154,
+    "relievers_used": 4,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Detroit Tigers": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 63,
+    "relievers_used": 5,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Miami Marlins": {
+    "unavailable": [],
+    "questionable": [
+      [
+        "Anthony Bender",
+        24
+      ]
+    ],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 41,
+    "relievers_used": 2,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Kansas City Royals": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 47,
+    "relievers_used": 4,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Minnesota Twins": {
+    "unavailable": [
+      [
+        "Andrew Morris",
+        41
+      ],
+      [
+        "Cody Laweryson",
+        36
+      ]
+    ],
+    "questionable": [],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 89,
+    "relievers_used": 3,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "St. Louis Cardinals": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 49,
+    "relievers_used": 4,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Texas Rangers": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 37,
+    "relievers_used": 3,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Colorado Rockies": {
+    "unavailable": [
+      [
+        "Keegan Thompson",
+        47
+      ]
+    ],
+    "questionable": [
+      [
+        "Jaden Hill",
+        22
+      ]
+    ],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 69,
+    "relievers_used": 2,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Arizona Diamondbacks": {
+    "unavailable": [],
+    "questionable": [],
+    "era_adjustment": -0.1,
+    "status": "fresh",
+    "total_bp_pitches": 24,
+    "relievers_used": 2,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Los Angeles Dodgers": {
+    "unavailable": [
+      [
+        "Jonathan Hern\u00e1ndez",
+        39
+      ]
+    ],
+    "questionable": [
+      [
+        "Alex Vesia",
+        31
+      ],
+      [
+        "Edgardo Henriquez",
+        24
+      ],
+      [
+        "Blake Treinen",
+        22
+      ],
+      [
+        "Kyle Hurt",
+        22
+      ]
+    ],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 155,
+    "relievers_used": 6,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "New York Mets": {
+    "unavailable": [
+      [
+        "Sean Manaea",
+        66
+      ]
+    ],
+    "questionable": [],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 131,
+    "relievers_used": 5,
+    "days_since_game": 3,
+    "decay": 0.0
+  },
+  "Chicago Cubs": {
+    "unavailable": [
+      [
+        "Javier Assad",
+        72
+      ]
+    ],
+    "questionable": [],
+    "era_adjustment": 0.0,
+    "status": "taxed",
+    "total_bp_pitches": 112,
+    "relievers_used": 4,
+    "days_since_game": 3,
+    "decay": 0.0
+  }
+}
